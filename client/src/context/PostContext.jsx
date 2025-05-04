@@ -10,7 +10,7 @@ import axios from "axios";
 import { useAuth } from "./AuthContext";
 
 const PostContext = createContext();
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export const PostProvider = ({ children }) => {
   const { token } = useAuth();
