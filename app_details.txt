@@ -1,0 +1,27 @@
+email_used_for_project : makwanagautam411@gmail.com
+
+mongodb_atlas : {email: "makwanagautam411@gmail.com", project_name: "SnapLink", url: "mongodb+srv://makwanagautam411:4R5YestdxhyJi5Zt@cluster0.hs3bqki.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", username="makwanagautam411" , 
+password: "4R5YestdxhyJi5Zt"}
+
+cloudinary_storage : makwangautam411@gmail.com
+
+.env {
+PORT=4000,
+MONGO_URI=mongodb+srv://makwanagautam411:4R5YestdxhyJi5Zt@cluster0.hs3bqki.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0,
+JWT_SECRET=myjwtsecret,
+CLOUDINARY_CLOUD_NAME=djbqtwzyf,
+CLOUDINARY_API_KEY=954628316187528,
+CLOUDINARY_API_SECRET=Xkg-PrO0vJEgtTbNnD5-Sl5faWs,
+}
+
+timeline{
+
+{week:1, focus:"Auth, User model, Profile Page, Follow system", complete:true},
+{week:2, focus:"Post model, Upload flow, Cloudinary integration, Post customization", complete:true},
+{week:2, focus:"Feed, Explore, Like/Comment systems", complete:true},
+{week:2, focus:"Stories, Real-time Chat (Socket.io), Notifications", complete:false},
+{week:2, focus:"Search, Tags, Profile customization", complete:true},
+{week:2, focus:"Admin Panel, Analytics, Polish UI", complete:false},
+{week:2, focus:"Testing, Bug fixes, Optimization, Final Deployment", complete:false},
+
+}

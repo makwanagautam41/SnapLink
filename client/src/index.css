@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+html,
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Slide-down animation */
+.slide-enter {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-out;
+}
+
+/* Slide-up animation */
+.slide-exit {
+  transform: translateY(100%);
+  transition: transform 0.3s ease-in;
+}
+
+.slide-enter-active {
+  transform: translateY(0);
+}
+
+.slide-exit-active {
+  transform: translateY(100%);
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* theme */
+:root {
+  --bg-color: white;
+  --text-color: black;
+}
+
+[data-theme="dark"] {
+  --bg-color: #070a10;
+  --text-color: #ffffff;
+}

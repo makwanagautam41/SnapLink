@@ -1,0 +1,144 @@
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, NavLink } from "react-router-dom";
+import { Icon } from "../utils/icons.js";
+import useThemeStyles from "../utils/themeStyles.js";
+
+const Signup = () => {
+  const { signup, error, setError, token } = useAuth();
+  const navigate = useNavigate();
+  const styles = useThemeStyles();
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    phone: "",
+    gender: "",
+  });
+
+  const handleChange = (e) => {
+    setInput({ ...input, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const response = await signup(input);
+    if (response.success) {
+      navigate("/");
+    } else {
+      setError(response.message);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
+
+  const inputClass = `${styles.input} w-full px-4 py-3 rounded-md focus:outline-none`;
+
+  const buttonClass = `bg-blue-600 text-white hover:bg-blue-700 block w-full p-3 text-center rounded-sm`;
+
+  return (
+    <div className="w-full max-w-md mx-auto p-8 space-y-3 rounded-xl">
+      <h1 className="text-2xl font-bold text-center">Signup</h1>
+      {error && <p className="text-red-500 text-center">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={input.name}
+          onChange={handleChange}
+          className={inputClass}
+          required
+        />
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={input.username}
+          onChange={handleChange}
+          className={inputClass}
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={input.email}
+          onChange={handleChange}
+          className={inputClass}
+          required
+        />
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone"
+          value={input.phone}
+          onChange={handleChange}
+          className={inputClass}
+        />
+        <select
+          name="gender"
+          value={input.gender}
+          onChange={handleChange}
+          className={inputClass}
+          required
+        >
+          <option value="" disabled>
+            Select Gender
+          </option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={input.password}
+          onChange={handleChange}
+          className={inputClass}
+          required
+        />
+        <button type="submit" disabled={loading} className={buttonClass}>
+          {loading ? "Signing up..." : "Sign up"}
+        </button>
+      </form>
+      <div className="flex items-center pt-4 space-x-1">
+        <div className="flex-1 h-px sm:w-16 dark:bg-gray-300"></div>
+        <p className="px-3 text-sm dark:text-gray-600">
+          Register with social accounts
+        </p>
+        <div className="flex-1 h-px sm:w-16 dark:bg-gray-300"></div>
+      </div>
+      <div className="flex justify-center space-x-4">
+        <button aria-label="Log in with Google" className="p-3 rounded-sm">
+          <Icon.Google size={24} />
+        </button>
+        <button aria-label="Log in with Twitter" className="p-3 rounded-sm">
+          <Icon.Facebook size={24} />
+        </button>
+        <button aria-label="Log in with GitHub" className="p-3 rounded-sm">
+          <Icon.Twitter size={24} />
+        </button>
+      </div>
+
+      <p className="text-xs text-center sm:px-6 dark:text-gray-600">
+        Already have an account?{" "}
+        <NavLink to="/signin" className="underline dark:text-gray-800">
+          Sign in
+        </NavLink>
+      </p>
+    </div>
+  );
+};
+
+export default Signup;
