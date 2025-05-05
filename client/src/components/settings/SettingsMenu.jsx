@@ -36,6 +36,11 @@ const SettingMenu = () => {
       icon: <Icon.Lock size={24} />,
     },
     {
+      name: "Account Verification",
+      path: "account-verification",
+      icon: <Icon.Lock size={24} />,
+    },
+    {
       name: "Close Friend",
       path: "close-friend",
       icon: <Icon.Star size={24} />,

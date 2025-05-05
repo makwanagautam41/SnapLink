@@ -29,6 +29,7 @@ import SwitchAppearance from "./components/settings/SwitchAppearance";
 
 // temp
 import { useTheme } from "./context/ThemeContext";
+import AccountVerification from "./components/settings/AccountVerification.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -175,6 +176,10 @@ const App = () => {
           <Route path="blocked" element={<Blocked />} />
           <Route path="report-problem" element={<ReportProblem />} />
           <Route path="switch-appearance" element={<SwitchAppearance />} />
+          <Route
+            path="account-verification"
+            element={<AccountVerification />}
+          />
         </Route>
         <Route
           path="*"

@@ -214,14 +214,14 @@ const AllComments = ({
               setShowEmojiPicker(false);
             }}
             disabled={newComment.trim().length <= 1 || isCommenting}
-            className={`ml-2 px-4 py-2 rounded-md cursor-pointer ${
+            className={`ml-2 px-4 py-2 rounded-md font-medium transition duration-200 ${
               newComment.trim().length > 1 && !isCommenting
-                ? styles.text
-                : "cursor-not-allowed text-gray-400"
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-200 text-gray-500 cursor-not-allowed"
             }`}
           >
             {isCommenting ? (
-              <Icon.Loader className="animate-spin w-6 h-6" />
+              <Icon.Loader className="animate-spin w-5 h-5 mx-auto" />
             ) : (
               "Post"
             )}
