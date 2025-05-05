@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import SidebarNotifications from "../components/SidebarNotifications";
 import PostTopBar from "./PostTopBar";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "../utils/icons";
 
 const Notifications = () => {
   const {
@@ -14,6 +15,7 @@ const Notifications = () => {
   } = useAuth();
 
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (window.innerWidth >= 1024) {
@@ -23,6 +25,7 @@ const Notifications = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
+      setLoading(true);
       try {
         const data = await getNotifications();
         if (data.success) {
@@ -31,6 +34,8 @@ const Notifications = () => {
         }
       } catch (error) {
         console.error("Error fetching notifications:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -50,12 +55,23 @@ const Notifications = () => {
       <PostTopBar title={"Notifications"} />
       <div className="flex-1 lg:ml-64 p-2 z-10 lg:px-8 mb-15">
         <div className="space-y-3 lg:space-y-5">
-          {followRequests.map((followRequest, index) => (
-            <SidebarNotifications key={index} followRequest={followRequest} />
-          ))}
-          {notifications.map((notification, index) => (
-            <SidebarNotifications key={index} notification={notification} />
-          ))}
+          {loading ? (
+            <div className="flex items-center justify-center h-screen w-full">
+              <Icon.Loader className="animate-spin text-gray-500 w-8 h-8" />
+            </div>
+          ) : (
+            <>
+              {followRequests.map((followRequest, index) => (
+                <SidebarNotifications
+                  key={index}
+                  followRequest={followRequest}
+                />
+              ))}
+              {notifications.map((notification, index) => (
+                <SidebarNotifications key={index} notification={notification} />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>
