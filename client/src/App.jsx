@@ -25,6 +25,7 @@ import AccountPrivacy from "./components/settings/AccountPrivacy";
 import Blocked from "./components/settings/Blocked";
 import CloseFriends from "./components/settings/CloseFriends";
 import ReportProblem from "./components/settings/ReportProblem";
+import SwitchAppearance from "./components/settings/SwitchAppearance";
 
 // temp
 import { useTheme } from "./context/ThemeContext";
@@ -173,6 +174,7 @@ const App = () => {
           <Route path="close-friend" element={<CloseFriends />} />
           <Route path="blocked" element={<Blocked />} />
           <Route path="report-problem" element={<ReportProblem />} />
+          <Route path="switch-appearance" element={<SwitchAppearance />} />
         </Route>
         <Route
           path="*"

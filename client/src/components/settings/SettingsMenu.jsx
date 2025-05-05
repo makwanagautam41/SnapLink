@@ -42,6 +42,11 @@ const SettingMenu = () => {
     },
     { name: "Blocked", path: "blocked", icon: <Icon.Block size={23} /> },
     {
+      name: "Switch Appearance",
+      path: "switch-appearance",
+      icon: <Icon.Theme size={24} />,
+    },
+    {
       name: "Report Problem",
       path: "report-problem",
       icon: <Icon.Report size={24} />,
