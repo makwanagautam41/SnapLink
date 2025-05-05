@@ -76,7 +76,7 @@ const SettingMenu = () => {
     <div>
       <PostTopBar title={"Settings"} />
       <div
-        className={`flex flex-col h-full w-[400px] shadow-md p-2 flex-grow ${
+        className={`flex flex-col h-full w-[390px] shadow-md p-2 flex-grow ${
           theme === "light"
             ? "bg-gray-50 text-gray-800"
             : "text-gray-100 border-r border-gray-800"
