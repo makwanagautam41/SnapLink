@@ -19,11 +19,23 @@ const Signup = () => {
   });
 
   const handleChange = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "username" && /\s/.test(value)) {
+      return;
+    }
+
+    setInput({ ...input, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (/\s/.test(input.username)) {
+      setError("Username cannot contain spaces.");
+      return;
+    }
+
     setLoading(true);
     const response = await signup(input);
     if (response.success) {
@@ -48,6 +60,9 @@ const Signup = () => {
     <div className="w-full max-w-md mx-auto p-8 space-y-3 rounded-xl">
       <h1 className="text-2xl font-bold text-center">Signup</h1>
       {error && <p className="text-red-500 text-center">{error}</p>}
+      {/\s/.test(input.username) && (
+        <p className="text-red-500 text-sm">Username cannot contain spaces.</p>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"

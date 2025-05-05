@@ -380,9 +380,15 @@ const Sidebar = () => {
           className="p-4 overflow-y-auto "
           style={{ maxHeight: "calc(100vh - 80px)" }}
         >
-          {followRequests.map((followRequest, index) => (
-            <SidebarNotifications key={index} followRequest={followRequest} />
-          ))}
+          {notifications.length === 0 && followRequests.length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400 mt-10 text-sm">
+              No notifications
+            </p>
+          ) : (
+            followRequests.map((followRequest, index) => (
+              <SidebarNotifications key={index} followRequest={followRequest} />
+            ))
+          )}
           {notifications.map((notification, index) => (
             <SidebarNotifications key={index} notification={notification} />
           ))}

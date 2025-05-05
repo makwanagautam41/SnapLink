@@ -59,6 +59,10 @@ const Notifications = () => {
             <div className="flex items-center justify-center h-screen w-full">
               <Icon.Loader className="animate-spin text-gray-500 w-8 h-8" />
             </div>
+          ) : notifications.length === 0 && followRequests.length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400 mt-10 text-sm">
+              No notifications
+            </p>
           ) : (
             <>
               {followRequests.map((followRequest, index) => (
