@@ -101,6 +101,7 @@ const EditProfile = () => {
         onChange={handleFileChange}
         style={{ display: "none" }}
       />
+      <PostTopBar title="Edit Profile" />
 
       {showCropModal && imageSrc && (
         <ImageEditorModal
@@ -118,9 +119,7 @@ const EditProfile = () => {
         />
       )}
 
-      <PostTopBar title="Edit Profile" />
-
-      <div className="p-2 h-[calc(100vh-80px)] overflow-y-auto">
+      <div className="p-2 h-[calc(100vh-80px)]">
         <div className={`rounded-3xl p-4 flex gap-4 ${styles.bg2}`}>
           <img
             src={user.profileImg}
@@ -209,7 +208,7 @@ const EditProfile = () => {
         <button
           onClick={handleSubmit}
           disabled={!isChanged}
-          className={`p-3 mt-6 mb-6 lg:mb-0 w-full rounded-3xl transition ${
+          className={`p-3 mt-6 sm:mb-0 mb-20 lg:mb-0 w-full rounded-3xl transition ${
             isChanged
               ? "bg-blue-500 text-white hover:bg-blue-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"

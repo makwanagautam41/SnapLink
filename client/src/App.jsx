@@ -26,10 +26,14 @@ import Blocked from "./components/settings/Blocked";
 import CloseFriends from "./components/settings/CloseFriends";
 import ReportProblem from "./components/settings/ReportProblem";
 import SwitchAppearance from "./components/settings/SwitchAppearance";
+import ChangeUsername from "./components/settings/ChangeUsername";
+import HelpAndSupport from "./components/settings/HelpAndSupport.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 
-// temp
 import { useTheme } from "./context/ThemeContext";
 import AccountVerification from "./components/settings/AccountVerification.jsx";
+import ViewStories from "./pages/ViewStories.jsx";
+import About from "./components/settings/About.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -42,6 +46,7 @@ const App = () => {
       <Routes>
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/"
           element={
@@ -142,6 +147,14 @@ const App = () => {
           }
         />
         <Route
+          path="/stories/:username/:storyId"
+          element={
+            <ProtectedPage>
+              <ViewStories />
+            </ProtectedPage>
+          }
+        />
+        <Route
           path="/reels"
           element={
             <ProtectedPage>
@@ -180,6 +193,9 @@ const App = () => {
             path="account-verification"
             element={<AccountVerification />}
           />
+          <Route path="change-username" element={<ChangeUsername />} />
+          <Route path="help-and-support" element={<HelpAndSupport />} />
+          <Route path="about" element={<About />} />
         </Route>
         <Route
           path="*"

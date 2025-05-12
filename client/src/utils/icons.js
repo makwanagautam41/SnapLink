@@ -6,6 +6,7 @@ import {
   BiHeart,
   BiPlusCircle,
   BiX,
+  BiLoader,
 } from "react-icons/bi";
 
 import {
@@ -34,13 +35,15 @@ import {
   MdStars,
   MdOutlineLightMode,
   MdOutlineMailOutline,
+  MdVerifiedUser,
+  MdVerified,
 } from "react-icons/md";
 
 import { TbUserEdit, TbMessageReport } from "react-icons/tb";
 
 import { ImBlocked } from "react-icons/im";
 
-import { FaHeart, FaXTwitter } from "react-icons/fa6";
+import { FaHeart, FaXTwitter, FaCirclePlus } from "react-icons/fa6";
 
 import {
   FaRegHeart,
@@ -53,6 +56,8 @@ import {
   FaEye,
   FaEyeSlash,
   FaRegCircle,
+  FaSpinner,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import {
@@ -61,6 +66,8 @@ import {
   IoIosArrowForward,
   IoMdNotificationsOutline,
   IoIosCheckmarkCircle,
+  IoMdVolumeOff,
+  IoIosVolumeHigh,
 } from "react-icons/io";
 
 export const Icon = {
@@ -69,11 +76,13 @@ export const Icon = {
   Explore: BiCompass,
   User: BiUser,
   Menu: HiOutlineMenu,
+  About: FaInfoCircle,
 
   Heart: BiHeart,
   HeartOutline: FaRegHeart,
   HeartFilled: FaHeart,
   Plus: BiPlusCircle,
+  Plus2: FaCirclePlus,
   Close: BiX,
   CloseCircle: IoCloseCircleSharp,
   DotsHorizontal: HiOutlineDotsHorizontal,
@@ -90,7 +99,9 @@ export const Icon = {
   ArrowBack: IoIosArrowBack,
   ArrowRight: IoIosArrowForward,
   ArrowDown: IoIosArrowDown,
-  Loader: RiLoader4Line,
+  Loader: FaSpinner,
+  Loader2: RiLoader4Line,
+  Loader3: BiLoader,
   toggleOn: BsToggleOn,
   toggleOff: BsToggleOff,
   Circle: FaRegCircle,
@@ -102,11 +113,15 @@ export const Icon = {
   Notification: IoMdNotificationsOutline,
   Block: ImBlocked,
   Report: TbMessageReport,
+  VerifiedUser: MdVerifiedUser,
+  Verified: MdVerified,
 
   Star: MdStars,
   Theme: MdOutlineLightMode,
   OnEye: FaEye,
   OffEye: FaEyeSlash,
+  VolumeOff: IoMdVolumeOff,
+  VolumeUp: IoIosVolumeHigh,
 
   Email: MdOutlineMailOutline,
   Call: IoCall,

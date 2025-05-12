@@ -78,67 +78,73 @@ const UserProfileDetails = ({
 
       {!isPrivate && openModalFollow && (
         <Modal onClose={() => setOpenModalFollow(null)} styles={styles}>
-          <h2 className="text-lg font-semibold capitalize border-b border-gray-400 pb-2">
-            {openModalFollow}
-          </h2>
-          <input
-            type="text"
-            placeholder="Search..."
-            className={`p-2 w-full rounded focus:outline-none transition ${styles.input}`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="p-4">
+            <h2 className="text-lg font-semibold capitalize border-b border-gray-400 pb-2">
+              {openModalFollow}
+            </h2>
+            <input
+              type="text"
+              placeholder="Search..."
+              className={`p-2 w-full rounded focus:outline-none transition ${styles.input}`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-          <div className="space-y-4 max-h-70 overflow-y-auto">
-            {(userData?.[openModalFollow] || [])
-              .filter((person) =>
-                person.username.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-              .map((person) => {
-                const isFollowedByMe = isPersonFollowedByMe(person._id);
+            <div className="space-y-4 max-h-70 overflow-y-auto">
+              {(userData?.[openModalFollow] || [])
+                .filter((person) =>
+                  person.username
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                )
+                .map((person) => {
+                  const isFollowedByMe = isPersonFollowedByMe(person._id);
 
-                let buttonLabel = "";
-                if (isCurrentUser) {
-                  buttonLabel =
-                    openModalFollow === "followers" ? "Remove" : "Following";
-                } else {
-                  buttonLabel = isFollowedByMe ? "Following" : "Follow";
-                }
+                  let buttonLabel = "";
+                  if (isCurrentUser) {
+                    buttonLabel =
+                      openModalFollow === "followers" ? "Remove" : "Following";
+                  } else {
+                    buttonLabel = isFollowedByMe ? "Following" : "Follow";
+                  }
 
-                return (
-                  <div
-                    key={person._id}
-                    className={`flex justify-between items-center space-x-4 p-2 rounded-lg ${styles.hover}`}
-                  >
-                    <Link to={`/profile/${person.username}`}>
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={person.profileImg || "/default-avatar.png"}
-                          alt={person.username}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <p className="font-medium">{person.username}</p>
-                      </div>
-                    </Link>
-
-                    <button
-                      className={`px-3 py-1 rounded-md text-sm ${
-                        buttonLabel === "Follow"
-                          ? "bg-blue-500 text-white"
-                          : `text-black bg-gray-400`
-                      }`}
+                  return (
+                    <div
+                      key={person._id}
+                      className={`flex justify-between items-center space-x-4 p-2 rounded-lg ${styles.hover}`}
                     >
-                      {buttonLabel}
-                    </button>
-                  </div>
-                );
-              })}
-            {(!userData?.[openModalFollow] ||
-              userData[openModalFollow].filter((person) =>
-                person.username.toLowerCase().includes(searchTerm.toLowerCase())
-              ).length === 0) && (
-              <p className="text-gray-500 text-center">No users found</p>
-            )}
+                      <Link to={`/profile/${person.username}`}>
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={person.profileImg || "/default-avatar.png"}
+                            alt={person.username}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <p className="font-medium">{person.username}</p>
+                        </div>
+                      </Link>
+
+                      <button
+                        className={`px-3 py-1 rounded-md text-sm ${
+                          buttonLabel === "Follow"
+                            ? "bg-blue-500 text-white"
+                            : `text-black bg-gray-400`
+                        }`}
+                      >
+                        {buttonLabel}
+                      </button>
+                    </div>
+                  );
+                })}
+              {(!userData?.[openModalFollow] ||
+                userData[openModalFollow].filter((person) =>
+                  person.username
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                ).length === 0) && (
+                <p className="text-gray-500 text-center">No users found</p>
+              )}
+            </div>
           </div>
         </Modal>
       )}

@@ -216,18 +216,6 @@ const Profile = () => {
           document.body
         )}
 
-      {/* Followers thumbnails */}
-      <div className="flex justify-center sm:justify-start mb-8 space-x-3 gap-2 border-b pb-4">
-        {[1, 2, 3, 4].map((num) => (
-          <img
-            key={num}
-            alt={`Follower ${num}`}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full ring-2 ring-offset-4 ring-gray-300"
-            src={`https://source.unsplash.com/40x40/?portrait?${num}`}
-          />
-        ))}
-      </div>
-
       {/* Posts grid */}
       <div className="grid grid-cols-3 gap-1 mb-12">
         {loadingPosts ? (

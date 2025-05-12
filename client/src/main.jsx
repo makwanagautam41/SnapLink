@@ -5,14 +5,17 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { PostProvider } from "./context/PostContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import { StoryProvider } from "./context/StoryContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <ThemeProvider>
     <AuthProvider>
       <PostProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <StoryProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </StoryProvider>
       </PostProvider>
     </AuthProvider>
   </ThemeProvider>

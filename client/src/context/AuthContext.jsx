@@ -7,6 +7,7 @@ const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -259,8 +260,6 @@ export const AuthProvider = ({ children }) => {
 
   const updateEmail = async (email) => {
     try {
-      setLoading(true);
-
       const response = await axios.put(
         `${BASE_URL}/users/update-email`,
         { email },
@@ -278,15 +277,11 @@ export const AuthProvider = ({ children }) => {
         success: false,
         message: error?.response?.data?.message || "Update failed",
       };
-    } finally {
-      setLoading(false);
     }
   };
 
   const updatePhone = async (phone) => {
     try {
-      setLoading(true);
-
       const response = await axios.put(
         `${BASE_URL}/users/update-phone`,
         { phone },
@@ -297,21 +292,17 @@ export const AuthProvider = ({ children }) => {
         }
       );
       await getLoggedInUserInfor();
-      console.log(response.data.message);
       return response.data;
     } catch (error) {
       return {
         success: false,
         message: error?.response?.data?.message || "Update failed",
       };
-    } finally {
-      setLoading(false);
     }
   };
 
   const updatePassword = async (oldPassword, newPassword) => {
     try {
-      setLoading(true);
       const response = await axios.put(
         `${BASE_URL}/users/update-password`,
         { oldPassword, newPassword },
@@ -327,8 +318,6 @@ export const AuthProvider = ({ children }) => {
       return response.data;
     } catch (error) {
       return error.response?.data;
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -383,6 +372,77 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const changeUsername = async (newUsername) => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/users/change-username`,
+        {
+          newUsername,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setError("");
+        setSuccess(response.data.message);
+        return response.data;
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendOtp = async (path) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}${path}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setError("");
+        setSuccess(response.data.message);
+        return response.data;
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const verifyUser = async (otp) => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/verify-user`,
+        { otp },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setError("");
+        setSuccess(response.data.message);
+        return response.data;
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getRelativeTime = (dateString) => {
     const now = new Date();
     const created = new Date(dateString);
@@ -429,6 +489,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         error,
         setError,
+        success,
+        setSuccess,
         user,
         setUser,
         loading,
@@ -453,6 +515,9 @@ export const AuthProvider = ({ children }) => {
         changeProfileVisibility,
         manageCloseFriend,
         manageUserBlocking,
+        changeUsername,
+        sendOtp,
+        verifyUser,
       }}
     >
       {children}

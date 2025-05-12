@@ -11,7 +11,7 @@ const Modal = ({ children, onClose }) => {
         onClick={onClose}
       />
       <div
-        className={`relative z-10 rounded-lg shadow-lg max-w-lg w-full p-4 space-y-4 text-center ${styles.bg}`}
+        className={`relative z-10 rounded-lg shadow-lg max-w-lg w-full space-y-4 text-center ${styles.bg}`}
       >
         <button
           onClick={onClose}

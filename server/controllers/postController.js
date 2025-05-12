@@ -188,6 +188,7 @@ const getFollowedUserPosts = async (req, res) => {
         postedBy: { $in: followedUserIds },
       })
       .populate("postedBy", "username profileImg")
+      .populate("comments.postedBy", "username profileImg")
       .sort({ createdAt: -1 });
 
     res.status(200).json({

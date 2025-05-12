@@ -5,14 +5,24 @@ import Modal from "../Modal";
 import { Icon } from "../../utils/icons";
 import toast from "react-hot-toast";
 import useThemeStyles from "..//../utils/themeStyles.js";
+import { Link } from "react-router-dom";
 
 const PersonalDetails = () => {
-  const { user, updateEmail, updatePhone, loading } = useAuth();
+  const {
+    user,
+    updateEmail,
+    updatePhone,
+    error,
+    setError,
+    success,
+    setSuccess,
+  } = useAuth();
   const styles = useThemeStyles();
 
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [showEmailUpdateModal, setShowEmailUpdateModal] = useState(false);
   const [showPhoneUpdateModal, setShowPhoneUpdateModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newEmail, setNewEmail] = useState(user?.email || "");
   const [newPhone, setNewPhone] = useState(user?.phone || "");
 
@@ -42,25 +52,42 @@ const PersonalDetails = () => {
     }
   };
 
-  const handleEmailUpdate = async () => {
-    const response = await updateEmail(newEmail);
-    if (!response.success) {
-      toast.error(response.message);
+  const clearMessagesAfterDelay = () => {
+    setTimeout(() => {
+      setSuccess("");
+      setError("");
+    }, 5000);
+  };
+
+  const handleUpdate = async (updateFn, newValue) => {
+    try {
+      setLoading(true);
+      const response = await updateFn(newValue);
+
+      if (response.success) {
+        setSuccess(response.message);
+      } else {
+        setError(response.message);
+      }
+
+      clearMessagesAfterDelay();
+    } catch (error) {
+      console.error("Update failed:", error);
+      setError("Something went wrong. Please try again.");
+      clearMessagesAfterDelay();
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePhoneUpdate = async () => {
-    const response = await updatePhone(newPhone);
-    if (!response.success) {
-      toast.error(response.message);
-    }
-  };
+  const handleEmailUpdate = () => handleUpdate(updateEmail, newEmail);
+  const handlePhoneUpdate = () => handleUpdate(updatePhone, newPhone);
 
   return (
     <div>
       <PostTopBar title={"Personal Details"} />
       <div className={`p-2 text-sm`}>
-        <p className="mb-4">
+        <p className="mb-4 sm:text-base text-gray-500">
           SnapLink uses this information to verify your identity and to keep our
           community safe. You decide what personal details you make visible to
           others.
@@ -85,7 +112,7 @@ const PersonalDetails = () => {
           </div>
           {showPersonalInfo && (
             <Modal onClose={() => setShowPersonalInfo(false)}>
-              <div className="rounded-2xl font-sans mt-6">
+              <div className="rounded-2xl font-sans mt-6 p-4">
                 <p className="text-left font-semibold mb-2">
                   Contact information
                 </p>
@@ -145,6 +172,10 @@ const PersonalDetails = () => {
                 >
                   {loading ? "Updating..." : "Update Email"}
                 </button>
+                {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+                {success && (
+                  <p className="mt-2 text-sm text-green-500">{success}</p>
+                )}
               </div>
             </Modal>
           )}
@@ -169,9 +200,25 @@ const PersonalDetails = () => {
                 >
                   {loading ? "Updating..." : "Update Phone"}
                 </button>
+                {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+                {success && (
+                  <p className="mt-2 text-sm text-green-500">{success}</p>
+                )}
               </div>
             </Modal>
           )}
+
+          <Link to={"/settings/change-username"}>
+            <div
+              className={`flex items-center justify-between p-4 cursor-pointer ${styles.hover}`}
+            >
+              <div>
+                <p className="mb-1">Change Username</p>
+                <p>{user?.username}</p>
+              </div>
+              <Icon.ArrowRight />
+            </div>
+          </Link>
 
           <div
             className={`flex items-center justify-between p-4 cursor-pointer ${styles.hover}`}

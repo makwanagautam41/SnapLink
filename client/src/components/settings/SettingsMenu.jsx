@@ -16,19 +16,19 @@ const SettingMenu = () => {
 
   const settingMenuItems = [
     {
+      name: "Edit Profile",
+      path: "edit-profile",
+      icon: <Icon.EditUser size={25} />,
+    },
+    {
       name: "Personal Details",
       path: "personal-details",
       icon: <Icon.User size={24} />,
     },
     {
-      name: "Password And Security",
+      name: "Password & Security",
       path: "password-and-security",
       icon: <Icon.Security size={24} />,
-    },
-    {
-      name: "Edit Profile",
-      path: "edit-profile",
-      icon: <Icon.EditUser size={25} />,
     },
     {
       name: "Account Privacy",
@@ -38,23 +38,37 @@ const SettingMenu = () => {
     {
       name: "Account Verification",
       path: "account-verification",
-      icon: <Icon.Lock size={24} />,
+      icon: <Icon.VerifiedUser size={24} />,
+    },
+    {
+      name: "Blocked",
+      path: "blocked",
+      icon: <Icon.Block size={21} />,
     },
     {
       name: "Close Friend",
       path: "close-friend",
       icon: <Icon.Star size={24} />,
     },
-    { name: "Blocked", path: "blocked", icon: <Icon.Block size={23} /> },
     {
       name: "Switch Appearance",
       path: "switch-appearance",
       icon: <Icon.Theme size={24} />,
     },
     {
+      name: "Help & Support",
+      path: "help-and-support",
+      icon: <Icon.Message size={24} />,
+    },
+    {
       name: "Report Problem",
       path: "report-problem",
       icon: <Icon.Report size={24} />,
+    },
+    {
+      name: "About",
+      path: "about",
+      icon: <Icon.About size={24} />,
     },
     {
       name: "Logout",
@@ -76,7 +90,7 @@ const SettingMenu = () => {
     <div>
       <PostTopBar title={"Settings"} />
       <div
-        className={`flex flex-col h-full w-[400px] shadow-md p-2 flex-grow ${
+        className={`flex flex-col h-full w-[390px] shadow-md p-2 flex-grow ${
           theme === "light"
             ? "bg-gray-50 text-gray-800"
             : "text-gray-100 border-r border-gray-800"
@@ -124,7 +138,7 @@ const SettingMenu = () => {
                   <Link
                     to={item.path}
                     key={index}
-                    className={`flex items-center p-2 space-x-3 rounded-md ${styles.acitve} ${styles.hover}`}
+                    className={`flex items-center p-2 space-x-3 rounded-md ${styles.hover}`}
                   >
                     {item.icon}
                     <span>{item.name}</span>

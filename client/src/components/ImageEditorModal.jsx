@@ -117,7 +117,14 @@ const FILTER_PRESETS = [
   },
 ];
 
-const ImageEditorModal = ({ theme, imageSrc, onClose, onSave, aspect = 1 }) => {
+const ImageEditorModal = ({
+  theme,
+  imageSrc,
+  onClose,
+  onSave,
+  aspect = 1,
+  type = "image",
+}) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -142,19 +149,23 @@ const ImageEditorModal = ({ theme, imageSrc, onClose, onSave, aspect = 1 }) => {
 
   const handleSave = async () => {
     try {
-      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, {
-        brightness,
-        contrast,
-        saturation,
-        blur,
-      });
-      if (croppedImage) {
-        onSave(croppedImage);
+      if (type === "image") {
+        const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, {
+          brightness,
+          contrast,
+          saturation,
+          blur,
+        });
+        if (croppedImage) {
+          onSave(croppedImage);
+        } else {
+          console.error("Failed to crop image");
+        }
       } else {
-        console.error("Failed to crop image");
+        onSave(imageSrc);
       }
     } catch (error) {
-      console.error("Error while cropping image:", error);
+      console.error("Error while processing media:", error);
     }
   };
 
@@ -186,7 +197,9 @@ const ImageEditorModal = ({ theme, imageSrc, onClose, onSave, aspect = 1 }) => {
         <button onClick={onClose}>
           <Icon.Close size={24} className={textColor} />
         </button>
-        <span className={`font-semibold text-lg ${textColor}`}>Edit Image</span>
+        <span className={`font-semibold text-lg ${textColor}`}>
+          Edit {type === "image" ? "Image" : "Video"}
+        </span>
         <button
           onClick={handleSave}
           className="bg-blue-500 text-white px-4 py-1 rounded-md"
@@ -195,25 +208,36 @@ const ImageEditorModal = ({ theme, imageSrc, onClose, onSave, aspect = 1 }) => {
         </button>
       </div>
 
-      {/* Cropper */}
+      {/* Media Preview */}
       <div className="flex-1 relative bg-black">
-        <Cropper
-          image={imageSrc}
-          crop={crop}
-          zoom={zoom}
-          aspect={aspect}
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={onCropComplete}
-          style={{
-            containerStyle: {
-              width: "100%",
-              height: "100%",
-              background: "#000",
-            },
-            mediaStyle: { filter: filterStyle },
-          }}
-        />
+        {type === "image" ? (
+          <Cropper
+            image={imageSrc}
+            crop={crop}
+            zoom={zoom}
+            aspect={aspect}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+            style={{
+              containerStyle: {
+                width: "100%",
+                height: "100%",
+                background: "#000",
+              },
+              mediaStyle: { filter: filterStyle },
+            }}
+          />
+        ) : (
+          <div className="w-full h-[50%] flex items-center justify-center">
+            <video
+              src={imageSrc}
+              className="max-w-full max-h-full"
+              style={{ filter: filterStyle }}
+              controls
+            />
+          </div>
+        )}
       </div>
 
       {/* Filter Presets Dropdown */}
@@ -240,8 +264,21 @@ const ImageEditorModal = ({ theme, imageSrc, onClose, onSave, aspect = 1 }) => {
       <div
         className={`${bgSecondary} p-4 flex flex-col space-y-3 overflow-y-auto max-h-[300px]`}
       >
+        {type === "image" && (
+          <div className="flex items-center justify-between">
+            <label className={`text-sm font-medium ${labelColor}`}>Zoom</label>
+            <input
+              type="range"
+              min={1}
+              max={3}
+              step={0.1}
+              value={zoom}
+              onChange={(e) => setZoom(parseFloat(e.target.value))}
+              className="w-2/3"
+            />
+          </div>
+        )}
         {[
-          ["Zoom", zoom, setZoom, 1, 3, 0.1],
           ["Brightness", brightness, setBrightness, 0.5, 1.5, 0.01],
           ["Contrast", contrast, setContrast, 0.5, 1.5, 0.01],
           ["Saturation", saturation, setSaturation, 0, 2, 0.01],

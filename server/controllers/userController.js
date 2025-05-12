@@ -219,14 +219,14 @@ const verifyUser = async (req, res) => {
     const user = await userModel.findById(userId);
 
     if (!user || user.otp !== otp) {
-      return res.status(401).json({
+      return res.json({
         success: false,
         message: "Invalid OTP.",
       });
     }
 
     if (user.otpExpiresAt < Date.now()) {
-      return res.status(410).json({
+      return res.json({
         success: false,
         message: "OTP has expired.",
       });
@@ -253,138 +253,114 @@ const verifyUser = async (req, res) => {
 const profile = async (req, res) => {
   try {
     const userId = req.userId;
-
     if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID is required" });
     }
 
-    const user = await userModel
-      .findById(userId)
-      .select(
-        "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends"
-      )
-      .populate({
-        path: "followers",
-        select: "username profileImg name",
-      })
-      .populate({
-        path: "following",
-        select: "username profileImg name",
-      })
-      .populate({
-        path: "blocked",
-        select: "username profileImg name",
-      })
-      .lean();
+    const [user, postCount] = await Promise.all([
+      userModel
+        .findById(userId)
+        .select(
+          "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends isVerified"
+        )
+        .populate("followers", "username profileImg name")
+        .populate("following", "username profileImg name")
+        .populate("blocked", "username profileImg name")
+        .lean(),
+      postModel.countDocuments({ postedBy: userId }),
+    ]);
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    const postCount = await postModel.countDocuments({ postedBy: userId });
-
-    return res.json({
-      success: true,
-      user: {
-        ...user,
-        postCount,
-      },
-    });
+    return res.json({ success: true, user: { ...user, postCount } });
   } catch (err) {
     console.error("Profile fetch error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
 const getUserProfile = async (req, res) => {
   try {
     const searchQuery = req.params.username;
-    if (!searchQuery) {
+    const userId = req.userId;
+
+    if (!searchQuery || !userId) {
       return res
         .status(400)
-        .json({ success: false, message: "Search query is required" });
+        .json({
+          success: false,
+          message: "Search query and User ID are required",
+        });
     }
 
-    const userId = req.userId;
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required",
-      });
-    }
+    const [currentUser, users] = await Promise.all([
+      userModel.findById(userId).select("recentSearches"),
+      userModel
+        .find({
+          $or: [
+            { username: { $regex: new RegExp(searchQuery, "i") } },
+            { name: { $regex: new RegExp(searchQuery, "i") } },
+          ],
+        })
+        .select(
+          "name username profileImg bio phone followers following profileVisibility followRequests isVerified"
+        )
+        .populate("followers", "username profileImg")
+        .populate("following", "username profileImg")
+        .limit(10)
+        .lean(),
+    ]);
 
-    const currentUser = await userModel.findById(userId);
     if (!currentUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     currentUser.recentSearches.push({ username: searchQuery });
-    if (currentUser.recentSearches.length > 7) {
+    if (currentUser.recentSearches.length > 7)
       currentUser.recentSearches.shift();
-    }
     await currentUser.save();
 
-    const regex = new RegExp(searchQuery, "i");
-
-    const users = await userModel
-      .find({
-        $or: [{ username: { $regex: regex } }, { name: { $regex: regex } }],
-      })
-      .select(
-        "name username profileImg bio phone followers following profileVisibility followRequests"
-      )
-      .populate({
-        path: "followers",
-        select: "username profileImg",
-      })
-      .populate({
-        path: "following",
-        select: "username profileImg",
-      })
-      .limit(10)
-      .lean();
-
     if (!users.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No users found matching the search",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "No users found matching the search",
+        });
     }
 
-    const usersWithPostCounts = await Promise.all(
-      users.map(async (user) => {
-        const postCount = await postModel.countDocuments({
-          postedBy: user._id,
-        });
-        return {
-          ...user,
-          postCount,
-        };
-      })
-    );
+    // Get post counts in parallel
+    const postCounts = await postModel.aggregate([
+      { $match: { postedBy: { $in: users.map((u) => u._id) } } },
+      { $group: { _id: "$postedBy", count: { $sum: 1 } } },
+    ]);
 
-    return res.json({
-      success: true,
-      users: usersWithPostCounts,
-    });
+    const postCountMap = postCounts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+
+    const usersWithPostCounts = users.map((user) => ({
+      ...user,
+      postCount: postCountMap[user._id] || 0,
+    }));
+
+    return res.json({ success: true, users: usersWithPostCounts });
   } catch (err) {
     console.error("Profile fetch error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -585,6 +561,60 @@ const updatePhone = async (req, res) => {
   }
 };
 
+const changeUsername = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { newUsername } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID required" });
+    }
+
+    if (!newUsername || typeof newUsername !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, message: "New username is required" });
+    }
+
+    const usernameTaken = await userModel
+      .findOne({ username: newUsername })
+      .lean();
+    if (usernameTaken) {
+      return res.json({ success: false, message: "Username already taken" });
+    }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: { username: newUsername } },
+        { new: true, runValidators: true }
+      )
+      .lean();
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Username updated successfully",
+      user: {
+        name: updatedUser.name,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+      },
+    });
+  } catch (err) {
+    console.error("Username change error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 const updateProfileImg = async (req, res) => {
   const userId = req.userId;
   const imageUrl = req.file?.path;
@@ -710,9 +740,26 @@ const updatePassword = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
     user.password = hashedPassword;
     await user.save();
+
+    const mailOptions = {
+      from: `"SnapLink" <${process.env.SENDER_EMAIL}>`,
+      to: user.email,
+      subject: "Your Password Has Been Changed",
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <p>Hi <strong>${user.name}</strong>,</p>
+          <p>Your password was changed successfully. If this was you, no further action is needed.</p>
+          <p>If you did not perform this action, please <a href="mailto:support@snaplink.com">contact support</a> immediately.</p>
+          <br />
+          <p>Regards,</p>
+          <p><strong>SnapLink Team</strong></p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     const token = createToken(user._id);
 
@@ -744,7 +791,7 @@ const sendPasswordResetOtp = async (req, res) => {
     const user = await userModel.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.json({
         success: false,
         message: "User not found with this email",
       });
@@ -803,14 +850,14 @@ const verifyPasswordResetOtp = async (req, res) => {
     const user = await userModel.findOne({ email });
 
     if (!user || user.otp !== otp) {
-      return res.status(401).json({
+      return res.json({
         success: false,
         message: "Invalid OTP.",
       });
     }
 
     if (user.otpExpiresAt < Date.now()) {
-      return res.status(410).json({
+      return res.json({
         success: false,
         message: "OTP has expired.",
       });
@@ -1561,6 +1608,7 @@ export {
   update,
   updateEmail,
   updatePhone,
+  changeUsername,
   updateProfileImg,
   removeProfileImg,
   updatePassword,

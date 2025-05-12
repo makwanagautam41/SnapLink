@@ -19,6 +19,7 @@ export const PostProvider = ({ children }) => {
   const [newComment, setNewComment] = useState("");
   const [userPosts, setUserPosts] = useState([]);
   const [publicPosts, setPublicPost] = useState([]);
+  const [feed, setFeed] = useState([]);
   const [isPostDeleting, setIsPostDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -122,6 +123,19 @@ export const PostProvider = ({ children }) => {
     }
   }, [token]);
 
+  const fetchMyFeed = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/posts/feed`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setFeed(response.data.posts);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const AddNewPost = async (croppedImage, caption) => {
     try {
       setLoadingPosts(true);
@@ -185,7 +199,6 @@ export const PostProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(response.data.message);
       return response.data;
     } catch (error) {
       console.log(error);
@@ -231,6 +244,9 @@ export const PostProvider = ({ children }) => {
         likePost,
         handleCopy,
         copied,
+        fetchMyFeed,
+        feed,
+        setFeed,
         // image croping
         showModal,
         setShowModal,

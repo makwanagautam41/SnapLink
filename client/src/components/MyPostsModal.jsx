@@ -128,17 +128,14 @@ const MyPostModal = () => {
   };
 
   const handleLike = async (postId) => {
-    // Prevent multiple simultaneous like requests
     if (isLiking) return;
 
     try {
       setIsLiking(true);
 
-      // Update UI optimistically
       const newLikeState = !hasLiked;
       setHasLiked(newLikeState);
 
-      // Update local post state optimistically
       setPost((prevPost) => {
         if (!prevPost) return prevPost;
 
@@ -156,29 +153,23 @@ const MyPostModal = () => {
         };
       });
 
-      // Make API call
       const result = await likePost(postId);
 
-      // If API call fails, revert the optimistic update
       if (!result || !result.success) {
         throw new Error("API call failed");
       }
 
-      // Fetch the latest data to ensure consistency
       const updatedPosts = await fetchUserPosts();
       const updatedPost = updatedPosts.find((p) => p._id === postId);
 
       if (updatedPost) {
         setPost(updatedPost);
-
-        // Update like state based on the fresh data
         const liked = updatedPost.likes?.some((like) =>
           typeof like === "object" ? like._id === user._id : like === user._id
         );
         setHasLiked(liked);
       }
     } catch (error) {
-      // Revert optimistic update on error
       setHasLiked(!hasLiked);
       console.error("Like error:", error);
     } finally {

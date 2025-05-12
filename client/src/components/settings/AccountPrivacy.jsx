@@ -11,6 +11,7 @@ const AccountAndPrivacy = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user?.profileVisibility === "private") {
@@ -37,11 +38,13 @@ const AccountAndPrivacy = () => {
 
   const handleConfirmVisibilityChange = async () => {
     try {
+      setLoading(true);
       await changeProfileVisibility();
       setIsPrivate((prev) => !prev);
     } catch (error) {
       console.error("Failed to change profile visibility:", error);
     } finally {
+      setLoading(false);
       setShowModal(false);
     }
   };
@@ -51,7 +54,7 @@ const AccountAndPrivacy = () => {
   };
 
   return (
-    <div className="sm:px-6 lg:px-10 py-4">
+    <div className="sm:px-6 lg:px-10">
       <PostTopBar title="Account Privacy" />
 
       <div className="flex flex-col px-4 gap-6 mt-6 max-w-4xl mx-auto">
@@ -91,12 +94,22 @@ const AccountAndPrivacy = () => {
             <p className="mb-4">{modalMessage}</p>
             <div className="flex flex-col gap-3 items-center justify-center">
               <button
+                type="button"
                 onClick={handleConfirmVisibilityChange}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer w-full"
+                disabled={loading}
+                aria-busy={loading}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 cursor-pointer w-full disabled:opacity-50"
               >
-                Got it
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <Icon.Loader className="animate-spin w-5 h-5" />
+                  </div>
+                ) : (
+                  "Got it"
+                )}
               </button>
               <button
+                type="button"
                 onClick={handleCloseModal}
                 className="px-4 py-2 border border-gray-300 rounded cursor-pointer hover:border-red-400 hover:text-red-400 w-full"
               >

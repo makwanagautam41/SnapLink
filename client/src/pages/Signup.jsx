@@ -3,12 +3,14 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, NavLink } from "react-router-dom";
 import { Icon } from "../utils/icons.js";
 import useThemeStyles from "../utils/themeStyles.js";
+import { toast } from "react-hot-toast";
 
 const Signup = () => {
   const { signup, error, setError, token } = useAuth();
   const navigate = useNavigate();
   const styles = useThemeStyles();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [input, setInput] = useState({
     name: "",
     username: "",
@@ -54,7 +56,7 @@ const Signup = () => {
 
   const inputClass = `${styles.input} w-full px-4 py-3 rounded-md focus:outline-none`;
 
-  const buttonClass = `bg-blue-600 text-white hover:bg-blue-700 block w-full p-3 text-center rounded-sm`;
+  const buttonClass = `w-full flex items-center justify-center px-8 py-3 mt-4 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50`;
 
   return (
     <div className="w-full max-w-md mx-auto p-8 space-y-3 rounded-xl">
@@ -114,17 +116,34 @@ const Signup = () => {
           <option value="other">Other</option>
         </select>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={input.password}
-          onChange={handleChange}
-          className={inputClass}
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={input.password}
+            onChange={handleChange}
+            className={inputClass}
+            required
+          />
+          <span
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-3.5 cursor-pointer text-gray-500"
+          >
+            {showPassword ? (
+              <Icon.OffEye size={20} />
+            ) : (
+              <Icon.OnEye size={20} />
+            )}
+          </span>
+        </div>
+
         <button type="submit" disabled={loading} className={buttonClass}>
-          {loading ? "Signing up..." : "Sign up"}
+          {loading ? (
+            <Icon.Loader3 className="animate-spin" size={24} />
+          ) : (
+            "Sign up"
+          )}
         </button>
       </form>
       <div className="flex items-center pt-4 space-x-1">
@@ -135,13 +154,25 @@ const Signup = () => {
         <div className="flex-1 h-px sm:w-16 dark:bg-gray-300"></div>
       </div>
       <div className="flex justify-center space-x-4">
-        <button aria-label="Log in with Google" className="p-3 rounded-sm">
+        <button
+          onClick={() => toast.error("Currently Unavailable")}
+          aria-label="Log in with Google"
+          className="p-3 rounded-sm"
+        >
           <Icon.Google size={24} />
         </button>
-        <button aria-label="Log in with Twitter" className="p-3 rounded-sm">
+        <button
+          onClick={() => toast.error("Currently Unavailable")}
+          aria-label="Log in with Twitter"
+          className="p-3 rounded-sm"
+        >
           <Icon.Facebook size={24} />
         </button>
-        <button aria-label="Log in with GitHub" className="p-3 rounded-sm">
+        <button
+          onClick={() => toast.error("Currently Unavailable")}
+          aria-label="Log in with GitHub"
+          className="p-3 rounded-sm"
+        >
           <Icon.Twitter size={24} />
         </button>
       </div>

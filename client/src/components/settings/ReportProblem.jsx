@@ -5,6 +5,7 @@ const ReportProblem = () => {
   return (
     <div>
       <PostTopBar title={"Report Problem"} />
+      Service Will be soon...
     </div>
   );
 };

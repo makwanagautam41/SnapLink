@@ -13,6 +13,7 @@ import {
   update,
   updateEmail,
   updatePhone,
+  changeUsername,
   updateProfileImg,
   removeProfileImg,
   updatePassword,
@@ -48,6 +49,7 @@ userRouter.get("/past-searched-user", authUser, getPastSearchedUser);
 userRouter.put("/update", authUser, update);
 userRouter.put("/update-email", authUser, updateEmail);
 userRouter.put("/update-phone", authUser, updatePhone);
+userRouter.put("/change-username", authUser, changeUsername);
 userRouter.put(
   "/update-profile-img",
   authUser,

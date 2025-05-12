@@ -98,7 +98,7 @@ const AllComments = ({
       >
         {/* Top Bar (Mobile only) */}
         <div className="relative w-full flex items-center justify-center p-2 sm:hidden shadow-md">
-          <button className="absolute left-0">
+          <button className="absolute left-2">
             <Icon.ArrowBack
               size={30}
               onClick={() => setShowAllComments(false)}
@@ -219,7 +219,7 @@ const AllComments = ({
             }}
           />
 
-          {/* <button
+          <button
             onClick={() => {
               handlePostComment(post._id);
               setShowEmojiPicker(false);
@@ -230,19 +230,6 @@ const AllComments = ({
                 ? styles.text
                 : "cursor-not-allowed text-gray-400"
             }`}
-          >
-            {isCommenting ? (
-              <Icon.Loader className="animate-spin w-6 h-6" />
-            ) : (
-              "Post"
-            )}
-          </button> */}
-          <button
-            onClick={() => {
-              handlePostComment(post._id);
-              setShowEmojiPicker(false);
-            }}
-            className={`ml-2 px-4 py-2 rounded-md cursor-pointer ${styles.text}`}
           >
             {isCommenting ? (
               <Icon.Loader className="animate-spin w-6 h-6" />

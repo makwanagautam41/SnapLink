@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Icon } from "../utils/icons";
 
-const PostImage = ({ postImg = [] }) => {
+const PostImage = ({ postImg = [], handleLike, postId }) => {
   const [curr, setCurr] = useState(0);
   const total = postImg.length;
 
@@ -18,6 +18,7 @@ const PostImage = ({ postImg = [] }) => {
       >
         {postImg.map((img, index) => (
           <img
+            onDoubleClick={() => handleLike(postId)}
             key={index}
             src={img.url || "..."}
             alt={`Post ${index + 1}`}

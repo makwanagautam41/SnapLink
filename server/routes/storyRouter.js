@@ -4,6 +4,7 @@ import {
   uploadStory,
   deleteStory,
   getUserStory,
+  fetchStories,
   viewStory,
   archiveStory,
 } from "../controllers/storyController.js";
@@ -20,6 +21,7 @@ storyRouter.post(
 );
 storyRouter.delete("/delete/:storyId", authUser, deleteStory);
 storyRouter.get("/my-story", authUser, getUserStory);
+storyRouter.get("/fetch-stories", authUser, fetchStories);
 storyRouter.get("/view/:storyId", authUser, viewStory);
 storyRouter.put("/archive/:storyId", authUser, archiveStory);
 

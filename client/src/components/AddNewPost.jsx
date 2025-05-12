@@ -7,6 +7,7 @@ import ImageEditorModal from "../components/ImageEditorModal";
 import toast from "react-hot-toast";
 import CaptionModal from "../components/CaptionModal";
 import useThemeStyles from "../utils/themeStyles";
+import LoadingModal from "./LoadingModal";
 
 const AddNewPost = ({ toggleCreateMenu, theme }) => {
   const { imageSrc, setImageSrc, showCropModal, setShowCropModal, AddNewPost } =
@@ -16,6 +17,7 @@ const AddNewPost = ({ toggleCreateMenu, theme }) => {
   const styles = useThemeStyles();
   const navigate = useNavigate();
   const [croppedImage, setCroppedImage] = useState(null);
+  const [uploadingPost, setUploadingPost] = useState(false);
   const [showCaptionModal, setShowCaptionModal] = useState(false);
 
   const handleFileChange = async (e) => {
@@ -42,16 +44,29 @@ const AddNewPost = ({ toggleCreateMenu, theme }) => {
   };
 
   const handleSaveWithCaption = async (caption) => {
-    const response = await AddNewPost(croppedImage, caption);
-    if (response) {
-      toast.success("Post Uploaded Successfully!");
-      navigate(`/${user.username}`);
-    } else {
-      toast.error("Error While Posting Image!");
+    try {
+      setUploadingPost(true);
+      const response = await AddNewPost(croppedImage, caption);
+
+      if (response) {
+        toast.success("Post uploaded successfully!");
+        navigate(`/${user.username}`);
+      } else {
+        toast.error("Error while posting image!");
+      }
+    } catch (error) {
+      console.error("Post upload error:", error);
+      toast.error("Something went wrong while uploading the post!");
+    } finally {
+      setUploadingPost(false);
+      setShowCaptionModal(false);
+      toggleCreateMenu();
     }
-    setShowCaptionModal(false);
-    toggleCreateMenu();
   };
+
+  if (uploadingPost) {
+    return <LoadingModal text={"Uploading Post"} />;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50 bg-opacity-40">

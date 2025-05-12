@@ -73,18 +73,92 @@ const deleteStory = async (req, res) => {
 const getUserStory = async (req, res) => {
   try {
     const userId = req.userId;
-    const story = await storyModel
-      .find({ postedBy: userId })
+
+    const stories = await storyModel
+      .find({
+        postedBy: userId,
+        isArchived: false,
+      })
       .populate("postedBy", "username profileImg")
+      .populate("viewers", "username profileImg") // 👉 include viewers' info
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ success: true, story });
-  } catch (error) {
+    const user = await userModel.findById(userId).select("username profileImg");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const groupedStories = [
+      {
+        user: {
+          _id: user._id,
+          username: user.username,
+          profileImg: user.profileImg,
+        },
+        stories: stories,
+      },
+    ];
+
+    res.status(200).json({
+      success: true,
+      stories: groupedStories,
+    });
+  } catch (err) {
     res.status(500).json({
       success: false,
       message: "Error fetching story",
       error: err.message,
     });
+  }
+};
+
+const fetchStories = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Get the list of users the current user is following
+    const user = await userModel.findById(userId).select("following");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const followingUserIds = user.following;
+
+    // Fetch non-archived stories posted by those users
+    const stories = await storyModel
+      .find({
+        postedBy: { $in: followingUserIds },
+        isArchived: false,
+      })
+      .populate("postedBy", "username profileImg")
+      .sort({ createdAt: -1 });
+
+    // Group stories by each unique user
+    const grouped = {};
+
+    for (const story of stories) {
+      const userId = story.postedBy._id;
+
+      if (!grouped[userId]) {
+        grouped[userId] = {
+          user: {
+            _id: story.postedBy._id,
+            username: story.postedBy.username,
+            profileImg: story.postedBy.profileImg,
+          },
+          stories: [],
+        };
+      }
+
+      grouped[userId].stories.push(story);
+    }
+
+    // Convert the grouped object into an array
+    const groupedStories = Object.values(grouped);
+
+    res.status(200).json({
+      success: true,
+      stories: groupedStories,
+    });
+  } catch (err) {
+    console.error("Error fetching grouped stories:", err);
+    res.status(500).json({ message: "Server error while fetching stories" });
   }
 };
 
@@ -159,4 +233,11 @@ const archiveStory = async (req, res) => {
   }
 };
 
-export { uploadStory, deleteStory, getUserStory, viewStory, archiveStory };
+export {
+  uploadStory,
+  deleteStory,
+  getUserStory,
+  fetchStories,
+  viewStory,
+  archiveStory,
+};

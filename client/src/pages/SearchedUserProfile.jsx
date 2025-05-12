@@ -11,6 +11,7 @@ import UserProfileDetails from "../components/UserProfileDetails.jsx";
 import PostTopBar from "../components/PostTopBar.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 import useThemeStyles from "../utils/themeStyles.js";
+import Modal from "../components/Modal.jsx";
 
 const SearchedUserProfile = () => {
   const { username } = useParams();
@@ -23,6 +24,7 @@ const SearchedUserProfile = () => {
   const [followStatus, setFollowStatus] = useState("Follow");
   const [showModal, setShowModal] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
 
   const { theme } = useTheme();
 
@@ -209,8 +211,63 @@ const SearchedUserProfile = () => {
               </div>
             ))
           )}
+
+          {/* Mutual Followers */}
+          {/* {isPrivate && searchedUser.followers?.length > 0 && (
+            <div className="mt-4 w-full">
+              <p className="text-sm text-gray-500 mb-2">Followed by</p>
+              <div className="flex flex-wrap gap-2">
+                {searchedUser.followers.slice(0, 3).map((follower) => (
+                  <div key={follower._id} className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {follower.username}
+                    </span>
+                  </div>
+                ))}
+                {searchedUser.followers.length > 3 && (
+                  <span
+                    className="text-sm text-gray-500 cursor-pointer hover:text-gray-600"
+                    onClick={() => setShowFollowersModal(true)}
+                  >
+                    +{searchedUser.followers.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )} */}
         </div>
       </div>
+
+      {/* Followers Modal */}
+      {/* {showFollowersModal && (
+        <Modal onClose={() => setShowFollowersModal(false)}>
+          <div className="flex flex-col items-center border-b border-gray-400 gap-1 pt-2 pb-4">
+            <p className="font-semibold text-lg">Followers</p>
+          </div>
+
+          <div className="max-h-[60vh] overflow-y-auto">
+            {searchedUser.followers.map((follower) => (
+              <div
+                key={follower._id}
+                className={`flex items-center gap-3 px-4 py-3 ${styles.hover} cursor-pointer`}
+              >
+                <img
+                  src={
+                    follower.profileImg ||
+                    "https://res.cloudinary.com/djbqtwzyf/image/upload/v1744042607/default_img_gszetk.png"
+                  }
+                  alt={follower.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex flex-col">
+                  <span className="font-medium">{follower.username}</span>
+                  <span className="text-sm text-gray-500">{follower.name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Modal>
+      )} */}
 
       {showOptionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-[5099999] backdrop-brightness-50 bg-opacity-50">

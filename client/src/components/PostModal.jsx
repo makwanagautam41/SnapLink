@@ -35,9 +35,6 @@ const PostModal = () => {
     copied,
   } = usePost();
 
-  const bgAndText =
-    theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-black";
-
   const [post, setPost] = useState(null);
   const [showAllComments, setShowAllComments] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -65,15 +62,12 @@ const PostModal = () => {
     fetchAndSelectPost();
   }, [username]);
 
-  // Set post and initial like state when userPosts or postId changes
   useEffect(() => {
     const foundPost = userPosts.find((p) => p._id === postId);
     setPost(foundPost || null);
 
-    // Set initial like state properly
     if (foundPost && user) {
       const liked = foundPost.likes?.some((like) =>
-        // Check if like is an object with _id or a string
         typeof like === "object" ? like._id === user._id : like === user._id
       );
       setHasLiked(liked);
@@ -173,17 +167,14 @@ const PostModal = () => {
   };
 
   const handleLike = async (postId) => {
-    // Prevent multiple simultaneous like requests
     if (isLiking) return;
 
     try {
       setIsLiking(true);
 
-      // Update UI optimistically
       const newLikeState = !hasLiked;
       setHasLiked(newLikeState);
 
-      // Update local post state optimistically
       setPost((prevPost) => {
         if (!prevPost) return prevPost;
 
@@ -201,29 +192,24 @@ const PostModal = () => {
         };
       });
 
-      // Make API call
       const result = await likePost(postId);
 
-      // If API call fails, revert the optimistic update
       if (!result || !result.success) {
         throw new Error("API call failed");
       }
 
-      // Fetch the latest data to ensure consistency
       const updatedPosts = await fetchPostsByUsername(username);
       const updatedPost = updatedPosts.find((p) => p._id === postId);
 
       if (updatedPost) {
         setPost(updatedPost);
 
-        // Update like state based on the fresh data
         const liked = updatedPost.likes?.some((like) =>
           typeof like === "object" ? like._id === user._id : like === user._id
         );
         setHasLiked(liked);
       }
     } catch (error) {
-      // Revert optimistic update on error
       setHasLiked(!hasLiked);
       console.error("Like error:", error);
     } finally {
@@ -237,7 +223,7 @@ const PostModal = () => {
     <>
       <div className="fixed inset-0 backdrop-brightness-50 flex items-center justify-center z-[9999]">
         <div
-          className={`${bgAndText} overflow-hidden w-full h-full sm:w-11/21 sm:h-[95vh] flex flex-col sm:flex-row`}
+          className={`${styles.bg} overflow-hidden w-full h-full sm:w-11/21 sm:h-[95vh] flex flex-col sm:flex-row`}
         >
           {/* Topbar for small screens */}
           <PostTopBar closeModal={closeModal} title={"Post"} />
@@ -267,13 +253,19 @@ const PostModal = () => {
             </button>
           </div>
 
-          {post.images?.length > 0 && <PostImage postImg={post.images} />}
+          {post.images?.length > 0 && (
+            <PostImage
+              postImg={post.images}
+              handleLike={handleLike}
+              postId={post._id}
+            />
+          )}
 
           <div className="w-full sm:w-1/2 h-1/2 sm:h-full overflow-y-auto flex flex-col justify-between">
             <div>
               {/* User header large screen */}
               <div
-                className={`hidden lg:flex items-center space-x-2 justify-between border-b border-gray-300 p-2 sticky top-0 z-10 ${bgAndText}`}
+                className={`hidden lg:flex items-center space-x-2 justify-between border-b border-gray-300 p-2 sticky top-0 z-10 ${styles.bg}`}
               >
                 <div className="flex items-center gap-2">
                   <img
@@ -300,15 +292,10 @@ const PostModal = () => {
 
               {showOptionsModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-[99999] backdrop-brightness-50 bg-opacity-50">
-                  <div className={`${bgAndText} rounded-lg w-80`}>
+                  <div className={`${styles.bg} rounded-lg w-80`}>
                     <button className="w-full py-3 px-4 cursor-pointer text-center text-red-500 font-semibold border-b border-gray-200">
                       Report
                     </button>
-                    {username !== user.username ? (
-                      <button className="w-full py-3 px-4 cursor-pointer text-center text-red-500 font-semibold border-b border-gray-200">
-                        Unfollow
-                      </button>
-                    ) : null}
                     <button
                       onClick={handleCopy}
                       className="w-full py-3 px-4 cursor-pointer text-center border-b border-gray-200"
@@ -479,7 +466,7 @@ const PostModal = () => {
             )}
 
             {/* Comment input */}
-            <div className={`sticky bottom-0 p-3 ${bgAndText}`}>
+            <div className={`sticky bottom-0 p-3 ${styles.bg}`}>
               <div className="hidden lg:flex items-center space-x-2 justify-between border-t border-gray-300">
                 <div className="flex items-center gap-4 mt-2">
                   {hasLiked ? (
