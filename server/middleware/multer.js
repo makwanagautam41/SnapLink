@@ -21,14 +21,14 @@ const getUploadMiddleware = (folderType = "general") => {
           chunk_size: 6000000, // 6MB chunks
           resource_type: "video",
           eager: [
-            { 
-              format: "mp4", 
+            {
+              format: "mp4",
               quality: "auto",
-              bit_rate: "1000k" // Limit video bitrate
-            }
+              bit_rate: "1000k", // Limit video bitrate
+            },
           ],
-          eager_async: true
-        })
+          eager_async: true,
+        }),
       };
     },
   });
@@ -36,20 +36,26 @@ const getUploadMiddleware = (folderType = "general") => {
   // Adjust limits for Vercel's serverless environment
   const limits = {
     fileSize: 25 * 1024 * 1024, // 25MB limit (reduced from 50MB for Vercel)
-    files: 5 // Maximum number of files
+    files: 5, // Maximum number of files
   };
 
-  return multer({ 
+  return multer({
     storage,
     limits,
     fileFilter: (req, file, cb) => {
       // Accept images and videos
-      if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      if (
+        file.mimetype.startsWith("image/") ||
+        file.mimetype.startsWith("video/")
+      ) {
         cb(null, true);
       } else {
-        cb(new Error('Invalid file type. Only images and videos are allowed.'), false);
+        cb(
+          new Error("Invalid file type. Only images and videos are allowed."),
+          false
+        );
       }
-    }
+    },
   });
 };
 
