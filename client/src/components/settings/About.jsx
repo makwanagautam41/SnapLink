@@ -19,13 +19,28 @@ const About = () => {
         "Improved UI for profile pages.",
         "Bug fixes and performance improvements.",
       ],
+      subVersions: [
+        {
+          version: "1.1.1",
+          details: [
+            "Minor bug fixes in stories.",
+            "Story load performance enhancements.",
+          ],
+        },
+      ],
     },
   ];
 
   const [openVersion, setOpenVersion] = useState(null);
+  const [openSubVersion, setOpenSubVersion] = useState(null);
 
   const toggleAccordion = (version) => {
     setOpenVersion(openVersion === version ? null : version);
+    setOpenSubVersion(null);
+  };
+
+  const toggleSubAccordion = (subVersion) => {
+    setOpenSubVersion(openSubVersion === subVersion ? null : subVersion);
   };
 
   return (
@@ -75,6 +90,52 @@ const About = () => {
                       <li key={i}>{detail}</li>
                     ))}
                   </ul>
+
+                  {/* Sub-Versions */}
+                  {versionData.subVersions &&
+                    versionData.subVersions.map((sub, idx) => (
+                      <div
+                        key={idx}
+                        className="mt-4 ml-4 border-l-2 border-gray-300 pl-4"
+                      >
+                        <div
+                          className="flex items-center justify-between cursor-pointer py-2"
+                          onClick={() => toggleSubAccordion(sub.version)}
+                        >
+                          <h4 className="text-lg font-semibold">
+                            Version {sub.version}
+                          </h4>
+                          <motion.div
+                            initial={{ rotate: 0 }}
+                            animate={{
+                              rotate: openSubVersion === sub.version ? 180 : 0,
+                            }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Icon.ArrowDown
+                              size={18}
+                              className="text-gray-600"
+                            />
+                          </motion.div>
+                        </div>
+
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{
+                            opacity: openSubVersion === sub.version ? 1 : 0,
+                            height: openSubVersion === sub.version ? "auto" : 0,
+                          }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <ul className="list-disc pl-5 text-base">
+                            {sub.details.map((d, j) => (
+                              <li key={j}>{d}</li>
+                            ))}
+                          </ul>
+                        </motion.div>
+                      </div>
+                    ))}
                 </div>
               )}
             </motion.div>
