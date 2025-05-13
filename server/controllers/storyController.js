@@ -80,7 +80,7 @@ const getUserStory = async (req, res) => {
         isArchived: false,
       })
       .populate("postedBy", "username profileImg")
-      .populate("viewers", "username profileImg") // 👉 include viewers' info
+      .populate("viewers", "username profileImg")
       .sort({ createdAt: -1 });
 
     const user = await userModel.findById(userId).select("username profileImg");
@@ -114,13 +114,11 @@ const fetchStories = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Get the list of users the current user is following
     const user = await userModel.findById(userId).select("following");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const followingUserIds = user.following;
 
-    // Fetch non-archived stories posted by those users
     const stories = await storyModel
       .find({
         postedBy: { $in: followingUserIds },
@@ -129,7 +127,6 @@ const fetchStories = async (req, res) => {
       .populate("postedBy", "username profileImg")
       .sort({ createdAt: -1 });
 
-    // Group stories by each unique user
     const grouped = {};
 
     for (const story of stories) {
@@ -149,7 +146,6 @@ const fetchStories = async (req, res) => {
       grouped[userId].stories.push(story);
     }
 
-    // Convert the grouped object into an array
     const groupedStories = Object.values(grouped);
 
     res.status(200).json({

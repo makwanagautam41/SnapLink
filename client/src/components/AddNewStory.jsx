@@ -21,34 +21,66 @@ const AddNewStory = ({ onClose, theme }) => {
     const file = e.target.files[0];
     if (file) {
       const type = file.type.startsWith("image/") ? "image" : "video";
-      const maxSizeMB = 10;
+      const maxSizeMB = 25;
       const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-      if (type === "video" && file.size > maxSizeBytes) {
-        toast(
-          "This video is too large. It may take a long time or fail to upload.",
+      if (file.size > maxSizeBytes) {
+        toast.error(
+          `${
+            type === "video" ? "Video" : "Image"
+          } must be less than ${maxSizeMB}MB to upload.`,
           {
-            icon: "⚠️",
+            icon: "🚫",
           }
         );
+        return;
       }
 
-      setSelectedFile(file);
-      setMediaType(type);
+      if (type === "video") {
+        const video = document.createElement("video");
+        video.preload = "metadata";
 
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setShowPreview(true);
+        video.onloadedmetadata = () => {
+          window.URL.revokeObjectURL(video.src);
+          const duration = video.duration;
+          if (duration > 60) {
+            toast.error("Video must be less than 60 seconds long.", {
+              icon: "🚫",
+            });
+            return;
+          }
+          setSelectedFile(file);
+          setMediaType(type);
+          setPreviewUrl(URL.createObjectURL(file));
+          setShowPreview(true);
+        };
+
+        video.onerror = () => {
+          toast.error("Error loading video. Please try another file.", {
+            icon: "🚫",
+          });
+        };
+
+        video.src = URL.createObjectURL(file);
+      } else {
+        setSelectedFile(file);
+        setMediaType(type);
+        setPreviewUrl(URL.createObjectURL(file));
+        setShowPreview(true);
+      }
     }
   };
 
   const handleSaveStory = async () => {
+    if (mediaType === "video" && selectedFile?.size > 10 * 1024 * 1024) {
+      toast.error("Video is too large. Please select a file under 10MB.");
+      return;
+    }
+
     try {
       setUploadingStory(true);
 
-      const response = await uploadStory({
-        selectedFile,
-      });
+      const response = await uploadStory({ selectedFile });
 
       if (response.message === "Story uploaded successfully!") {
         toast.success("Story uploaded successfully!");
