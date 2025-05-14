@@ -8,7 +8,14 @@ import LoadingModal from "..//../components/LoadingModal";
 import toast from "react-hot-toast";
 
 const AccountOwnerShip = () => {
-  const { user, deactivateAccount, setError, error } = useAuth();
+  const {
+    user,
+    deactivateAccount,
+    setError,
+    error,
+    setSuccess,
+    deleteAccount,
+  } = useAuth();
   const styles = useThemeStyles();
   const [showAccountDeactivation, setShowAccountDeactivation] = useState(false);
   const [showAccountDeletion, setShowAccountDeletion] = useState(false);
@@ -26,6 +33,7 @@ const AccountOwnerShip = () => {
 
   const handleDeactivate = async () => {
     try {
+      setShowAccountDeactivation(false);
       setLoadingMessage("Deactivating your account...");
       setLoading(true);
 
@@ -41,6 +49,26 @@ const AccountOwnerShip = () => {
     } catch (err) {
       setLoading(false);
       console.error("Error deactivating account:", err);
+      setError("An unexpected error occurred.");
+    }
+  };
+
+  const handleDeletion = async () => {
+    try {
+      setShowAccountDeletion(false);
+      setLoadingMessage("Processing to Delete account");
+      setLoading(true);
+
+      const res = await deleteAccount();
+
+      if (res.success) {
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.error("Error deleting account:", err);
       setError("An unexpected error occurred.");
     }
   };
@@ -152,7 +180,10 @@ const AccountOwnerShip = () => {
                   >
                     Cancel
                   </button>
-                  <button className="px-4 py-2 cursor-pointer rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                  <button
+                    onClick={handleDeletion}
+                    className="px-4 py-2 cursor-pointer rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                  >
                     Confirm
                   </button>
                 </div>

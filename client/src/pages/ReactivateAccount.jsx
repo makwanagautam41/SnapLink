@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "../utils/icons";
@@ -8,7 +8,14 @@ import useThemeStyles from "../utils/themeStyles";
 
 const ReactivateAccount = () => {
   const navigate = useNavigate();
-  const { sendReactivateAccountOtp, verifyOtpAndReactivateAccount } = useAuth();
+  const {
+    sendReactivateAccountOtp,
+    verifyOtpAndReactivateAccount,
+    error,
+    setError,
+    success,
+    setSuccess,
+  } = useAuth();
 
   const styles = useThemeStyles();
   const [email, setEmail] = useState("");
@@ -16,17 +23,53 @@ const ReactivateAccount = () => {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
   const [canResend, setCanResend] = useState(true);
   const [resendTimer, setResendTimer] = useState(60);
 
+  const inputRefs = Array(6)
+    .fill(0)
+    .map(() => React.createRef());
+
   const handleInput = (e, idx) => {
-    const newOtp = [...otp];
-    newOtp[idx] = e.target.value;
-    setOtp(newOtp);
+    const val = e.target.value;
+    if (/^\d$/.test(val)) {
+      const newOtp = [...otp];
+      newOtp[idx] = val;
+      setOtp(newOtp);
+      if (idx < 5 && inputRefs[idx + 1].current) {
+        inputRefs[idx + 1].current.focus();
+      }
+    } else if (val === "") {
+      const newOtp = [...otp];
+      newOtp[idx] = "";
+      setOtp(newOtp);
+    }
+  };
+
+  const handleKeyDown = (e, idx) => {
+    if (e.key === "Backspace" && otp[idx] === "") {
+      if (idx > 0 && inputRefs[idx - 1].current) {
+        inputRefs[idx - 1].current.focus();
+      }
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData("text").trim().slice(0, 6);
+    if (/^\d{6}$/.test(pasteData)) {
+      const newOtp = pasteData.split("");
+      setOtp(newOtp);
+      newOtp.forEach((digit, i) => {
+        if (inputRefs[i].current) {
+          inputRefs[i].current.value = digit;
+        }
+      });
+      if (inputRefs[5].current) inputRefs[5].current.focus();
+    }
   };
 
   const handleSubmitEmail = async (e) => {
@@ -126,18 +169,31 @@ const ReactivateAccount = () => {
               required
             />
           </div>
-          <div className="pb-2">
+          <div className="space-y-1 text-sm relative">
+            <label htmlFor="password" className="block dark:text-gray-600">
+              Password
+            </label>
             <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
-              type="password"
               className={`w-full p-3 border-b focus:outline-none ${styles.input}`}
-              placeholder="Password"
               required
             />
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-9 cursor-pointer text-gray-500"
+            >
+              {showPassword ? (
+                <Icon.OffEye size={20} />
+              ) : (
+                <Icon.OnEye size={20} />
+              )}
+            </span>
           </div>
           <button
-            className="flex items-center justify-center w-full p-2 px-8 mt-4 font-light text-white bg-black disabled:opacity-50"
+            className="flex items-center justify-center border w-full p-2 px-8 mt-4 font-light text-white bg-black disabled:opacity-50"
             disabled={loading || !email || !username || !password}
           >
             {loading ? <Icon.Loader className="animate-spin" /> : "Submit"}
@@ -154,23 +210,27 @@ const ReactivateAccount = () => {
             account.
           </p>
           <Title text2="Enter OTP Sent to Your Email" />
-          <div className="flex justify-center gap-2 mb-4">
+          <div className="flex justify-center gap-2 mb-4" onPaste={handlePaste}>
             {Array(6)
               .fill(0)
               .map((_, idx) => (
                 <input
                   key={idx}
+                  ref={inputRefs[idx]}
                   className="w-12 h-12 text-xl font-semibold text-center border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                   value={otp[idx]}
                   onChange={(e) => handleInput(e, idx)}
+                  onKeyDown={(e) => handleKeyDown(e, idx)}
                   maxLength="1"
                   type="tel"
+                  inputMode="numeric"
                   required
                 />
               ))}
           </div>
+
           <button
-            className="flex items-center justify-center w-full p-2 px-8 mt-2 font-light text-white bg-black disabled:opacity-50"
+            className="flex items-center justify-center border w-full p-2 px-8 mt-2 font-light text-white bg-black disabled:opacity-50"
             disabled={loading}
             onClick={handleSubmitOtp}
           >

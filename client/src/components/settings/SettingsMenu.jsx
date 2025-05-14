@@ -66,8 +66,8 @@ const SettingMenu = () => {
       icon: <Icon.Report size={24} />,
     },
     {
-      name: "About Us",
-      path: "about",
+      name: "Change Logs",
+      path: "change-logs",
       icon: <Icon.About size={24} />,
     },
     {

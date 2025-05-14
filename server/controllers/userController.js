@@ -88,6 +88,14 @@ const signin = async (req, res) => {
       });
     }
 
+    if (user.deletionSchedule?.isScheduled) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your account is scheduled for deletion. Please cancel the deletion if you wish to continue using it.",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res
@@ -1442,6 +1450,101 @@ const verifyOtpAndReactivateAccount = async (req, res) => {
   }
 };
 
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (user.deletionSchedule?.isScheduled) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Account deletion already scheduled. Will be deleted after 24 hours.",
+      });
+    }
+
+    const deletionTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    user.deletionSchedule = {
+      isScheduled: true,
+      scheduledAt: deletionTime,
+    };
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Account deletion scheduled. It will be deleted after 24 hours unless cancelled.",
+    });
+  } catch (error) {
+    console.error("Error scheduling account deletion:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while scheduling deletion",
+    });
+  }
+};
+
+const cancelAccountDeletion = async (req, res) => {
+  try {
+    const { username, email, password, confirmCancel } = req.body;
+
+    if (!username || !email || !password || !confirmCancel) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required, including confirmation checkbox.",
+      });
+    }
+
+    const user = await userModel.findOne({ username, email });
+
+    if (!user || !user.deletionSchedule?.isScheduled) {
+      return res.status(404).json({
+        success: false,
+        message: "No scheduled deletion found for the provided credentials.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password.",
+      });
+    }
+
+    user.deletionSchedule = {
+      isScheduled: false,
+      scheduledAt: null,
+    };
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Account deletion has been cancelled successfully.",
+    });
+  } catch (error) {
+    console.error("Error cancelling account deletion:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while cancelling deletion",
+    });
+  }
+};
+
 const getNotifications = async (req, res) => {
   try {
     const userId = req.userId;
@@ -1617,6 +1720,8 @@ export {
   deactivateAccount,
   sendReactivateAccountOtp,
   verifyOtpAndReactivateAccount,
+  deleteAccount,
+  cancelAccountDeletion,
   getNotifications,
   addCloseFriends,
   blockUser,

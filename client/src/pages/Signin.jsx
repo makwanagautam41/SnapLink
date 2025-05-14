@@ -6,7 +6,7 @@ import useThemeStyles from "../utils/themeStyles.js";
 import { toast } from "react-hot-toast";
 
 const Signin = () => {
-  const { signin, error, setError, token } = useAuth();
+  const { signin, success, error, setError, token } = useAuth();
   const navigate = useNavigate();
   const styles = useThemeStyles();
   const location = useLocation();
@@ -30,6 +30,8 @@ const Signin = () => {
       setError(response.message);
       if (response.message?.includes("deactivated")) {
         navigate("/reactivate-account");
+      } else if (response.message?.includes("scheduled for deletion")) {
+        navigate("/cancel-account-deletion");
       }
     }
     setLoading(false);
@@ -51,6 +53,7 @@ const Signin = () => {
     <div className={`w-full max-w-md p-8 space-y-3 rounded-xl mx-auto`}>
       <h1 className="text-2xl font-bold text-center">Signin</h1>
       {error && <p className="text-red-500 text-center">{error}</p>}
+      {success && <p className="text-green-500 text-center">{success}</p>}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-1 text-sm">
           <label htmlFor="email" className="block dark:text-gray-600">
@@ -100,7 +103,7 @@ const Signin = () => {
           {loading ? (
             <Icon.Loader3 className="animate-spin" size={24} />
           ) : (
-            "Sign up"
+            "Sign in"
           )}
         </button>
       </form>

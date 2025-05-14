@@ -33,9 +33,10 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import { useTheme } from "./context/ThemeContext";
 import AccountVerification from "./components/settings/AccountVerification.jsx";
 import ViewStories from "./pages/ViewStories.jsx";
-import About from "./components/settings/About.jsx";
+import ChangeLogs from "./components/settings/ChangeLogs.jsx";
 import AccountOwnerShip from "./components/settings/AccountOwnerShip.jsx";
 import ReactivateAccount from "./pages/ReactivateAccount.jsx";
+import CancelAccountDeletion from "./pages/CancelAccountDeletion.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -50,6 +51,10 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reactivate-account" element={<ReactivateAccount />} />
+        <Route
+          path="/cancel-account-deletion"
+          element={<CancelAccountDeletion />}
+        />
         <Route
           path="/"
           element={
@@ -198,7 +203,7 @@ const App = () => {
           />
           <Route path="change-username" element={<ChangeUsername />} />
           <Route path="help-and-support" element={<HelpAndSupport />} />
-          <Route path="about" element={<About />} />\
+          <Route path="change-logs" element={<ChangeLogs />} />\
           <Route path="account-ownership" element={<AccountOwnerShip />} />
         </Route>
         <Route

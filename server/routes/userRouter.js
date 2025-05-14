@@ -28,6 +28,8 @@ import {
   deactivateAccount,
   sendReactivateAccountOtp,
   verifyOtpAndReactivateAccount,
+  deleteAccount,
+  cancelAccountDeletion,
   getNotifications,
   addCloseFriends,
   blockUser,
@@ -87,6 +89,8 @@ userRouter.post(
   "/verify-otp-and-reactivate-account",
   verifyOtpAndReactivateAccount
 );
+userRouter.post("/delete-account", authUser, deleteAccount);
+userRouter.post("/cancel-account-deletion", cancelAccountDeletion);
 userRouter.get("/notifications", authUser, getNotifications);
 userRouter.put("/add-close-friend/:targetUsername", authUser, addCloseFriends);
 userRouter.put("/block/:targetUsername", authUser, blockUser);

@@ -498,12 +498,75 @@ export const AuthProvider = ({ children }) => {
           otp,
         }
       );
+      if (res.data.success) {
+        setError("");
+        setSuccess("");
+      }
       return res.data;
     } catch (err) {
       return {
         success: false,
         message: err.response?.data?.message || "OTP verification failed",
       };
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/delete-account`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (res.data.success) {
+        localStorage.removeItem("token");
+        setToken("");
+        setError(res.data.message);
+        setSuccess("");
+      } else {
+        setError(res.data.message);
+        setSuccess("");
+      }
+      return res.data;
+    } catch (err) {
+      console.log(err);
+      return {
+        success: false,
+        message: err.response?.data?.message || "failed",
+      };
+    }
+  };
+
+  const cancelAccountDeletion = async ({
+    email,
+    username,
+    password,
+    confirmCancel,
+  }) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/cancel-account-deletion`,
+        {
+          email,
+          username,
+          password,
+          confirmCancel,
+        }
+      );
+      setSuccess(res.data.message);
+      setError(null);
+      return { success: true, message: res.data.message };
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "Failed to cancel account deletion";
+      setError(message);
+      console.log(err);
+      setSuccess(null);
+      return { success: false, message };
     }
   };
 
@@ -585,6 +648,8 @@ export const AuthProvider = ({ children }) => {
         deactivateAccount,
         sendReactivateAccountOtp,
         verifyOtpAndReactivateAccount,
+        deleteAccount,
+        cancelAccountDeletion,
       }}
     >
       {children}

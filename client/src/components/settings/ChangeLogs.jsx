@@ -3,7 +3,7 @@ import PostTopBar from "../PostTopBar";
 import { Icon } from "../../utils/icons";
 import { motion } from "framer-motion";
 
-const About = () => {
+const ChangeLogs = () => {
   const versions = [
     {
       version: "1.0.0",
@@ -34,6 +34,10 @@ const About = () => {
             "Added Account Deactivation in the personal Details.",
           ],
         },
+        {
+          version: "1.1.3",
+          details: ["Added account deletion"],
+        },
       ],
     },
   ];
@@ -52,7 +56,7 @@ const About = () => {
 
   return (
     <div className="min-h-screen">
-      <PostTopBar title={"About"} />
+      <PostTopBar title={"Change Logs"} />
       <div className="px-4 py-6">
         <h2 className="text-3xl font-semibold mb-4">Welcome to SnapLink</h2>
         <p className="text-lg mb-4">
@@ -153,4 +157,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default ChangeLogs;
