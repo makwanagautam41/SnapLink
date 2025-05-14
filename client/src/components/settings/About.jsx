@@ -31,7 +31,7 @@ const About = () => {
           version: "1.1.2",
           details: [
             "Minor bug fixes in stories.",
-            "Added Account Deactivation in the personal Details",
+            "Added Account Deactivation in the personal Details.",
           ],
         },
       ],
