@@ -7,11 +7,13 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import connectDB from "./config/mongoDB.js";
 import startStoryCleaner from "./utils/storyCleaner.js";
+import startAccountDeletion from "./utils/accountDeletion.js";
 
 dotenv.config();
 const app = express();
 connectDB();
 startStoryCleaner();
+startAccountDeletion();
 
 // middlewares
 app.use(helmet());
