@@ -293,12 +293,10 @@ const getUserProfile = async (req, res) => {
     const userId = req.userId;
 
     if (!searchQuery || !userId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Search query and User ID are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Search query and User ID are required",
+      });
     }
 
     const [currentUser, users] = await Promise.all([
@@ -331,12 +329,10 @@ const getUserProfile = async (req, res) => {
     await currentUser.save();
 
     if (!users.length) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No users found matching the search",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "No users found matching the search",
+      });
     }
 
     // Get post counts in parallel
@@ -1292,13 +1288,6 @@ const deactivateAccount = async (req, res) => {
     const userId = req.userId;
     const { message } = req.body;
 
-    if (!message || message.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Deactivation message is required",
-      });
-    }
-
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -1307,10 +1296,15 @@ const deactivateAccount = async (req, res) => {
       });
     }
 
-    user.deactivationInfo = {
+    const deactivationInfo = {
       isDeactivated: true,
-      message,
     };
+
+    if (message && message.trim().length > 0) {
+      deactivationInfo.message = message.trim();
+    }
+
+    user.deactivationInfo = deactivationInfo;
 
     await user.save();
 

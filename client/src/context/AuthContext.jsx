@@ -48,11 +48,9 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);
-        console.log("Signin error:", error.response.data.message);
         return { success: false, message: error.response.data.message };
       } else {
         setError(error.message);
-        console.log("Signin error:", error.message);
         return { success: false, message: error.message };
       }
     }
@@ -443,6 +441,72 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deactivateAccount = async (message = "") => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/deactivate-account`,
+        message.trim() ? { message } : {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        localStorage.removeItem("token");
+        setToken("");
+        setUser(null);
+        setError("");
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Deactivation API error:", error);
+      return {
+        success: false,
+        message: "Something went wrong. Please try again later.",
+      };
+    }
+  };
+
+  const sendReactivateAccountOtp = async ({ email, username, password }) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/send-reactivate-account-otp`,
+        {
+          email,
+          username,
+          password,
+        }
+      );
+      return res.data;
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to send OTP",
+      };
+    }
+  };
+
+  const verifyOtpAndReactivateAccount = async ({ email, otp }) => {
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/users/verify-otp-and-reactivate-account`,
+        {
+          email,
+          otp,
+        }
+      );
+      return res.data;
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "OTP verification failed",
+      };
+    }
+  };
+
   const getRelativeTime = (dateString) => {
     const now = new Date();
     const created = new Date(dateString);
@@ -518,6 +582,9 @@ export const AuthProvider = ({ children }) => {
         changeUsername,
         sendOtp,
         verifyUser,
+        deactivateAccount,
+        sendReactivateAccountOtp,
+        verifyOtpAndReactivateAccount,
       }}
     >
       {children}

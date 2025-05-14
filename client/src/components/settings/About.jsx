@@ -27,6 +27,13 @@ const About = () => {
             "Story load performance enhancements.",
           ],
         },
+        {
+          version: "1.1.2",
+          details: [
+            "Minor bug fixes in stories.",
+            "Added Account Deactivation in the personal Details",
+          ],
+        },
       ],
     },
   ];

@@ -28,6 +28,9 @@ const Signin = () => {
       navigate(redirectTo);
     } else {
       setError(response.message);
+      if (response.message?.includes("deactivated")) {
+        navigate("/reactivate-account");
+      }
     }
     setLoading(false);
   };

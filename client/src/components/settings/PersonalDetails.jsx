@@ -3,7 +3,6 @@ import PostTopBar from "../../components/PostTopBar";
 import { useAuth } from "..//../context/AuthContext";
 import Modal from "../Modal";
 import { Icon } from "../../utils/icons";
-import toast from "react-hot-toast";
 import useThemeStyles from "..//../utils/themeStyles.js";
 import { Link } from "react-router-dom";
 
@@ -233,13 +232,17 @@ const PersonalDetails = () => {
           <div
             className={`flex items-center justify-between p-4 cursor-pointer ${styles.hover}`}
           >
-            <div>
-              <p className="mb-1 font-medium">Account ownership and control</p>
-              <p>
-                Manage your data, modify your legacy contact, deactivate or
-                delete your accounts and profiles.
-              </p>
-            </div>
+            <Link to={"/settings/account-ownership"}>
+              <div>
+                <p className="mb-1 font-medium">
+                  Account ownership and control
+                </p>
+                <p>
+                  Manage your data, modify your legacy contact, deactivate or
+                  delete your accounts and profiles.
+                </p>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

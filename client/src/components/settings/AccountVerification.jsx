@@ -124,11 +124,17 @@ const AccountVerification = () => {
           className={`flex items-center justify-between rounded-3xl p-2 ${styles.bg2}`}
         >
           <div className="flex items-center gap-1">
-            <img
-              src={user?.profileImg}
-              alt={user?.username}
-              className="h-20 w-20 rounded-3xl object-cover"
-            />
+            {!user ? (
+              <div className="flex items-center justify-center">
+                <Icon.Loader className="animate-spin text-gray-500 w-8 h-8" />
+              </div>
+            ) : (
+              <img
+                src={user?.profileImg}
+                alt={user?.username}
+                className="h-20 w-20 rounded-3xl object-cover"
+              />
+            )}
             <p className="text-base font-medium">{user?.username}</p>
           </div>
           {showOtpBox ? null : (

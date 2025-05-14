@@ -7,7 +7,7 @@ const getThemeStyle = (theme) => ({
   input:
     theme === "light"
       ? "hover:bg-gray-200 bg-gray-200 hover:text-gray-900"
-      : "bg-gray-900 hover:text-white",
+      : "bg-gray-900 hover:text-white text-white",
   hover:
     theme === "light"
       ? "hover:bg-gray-200 hover:text-gray-900"

@@ -34,6 +34,8 @@ import { useTheme } from "./context/ThemeContext";
 import AccountVerification from "./components/settings/AccountVerification.jsx";
 import ViewStories from "./pages/ViewStories.jsx";
 import About from "./components/settings/About.jsx";
+import AccountOwnerShip from "./components/settings/AccountOwnerShip.jsx";
+import ReactivateAccount from "./pages/ReactivateAccount.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -47,6 +49,7 @@ const App = () => {
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reactivate-account" element={<ReactivateAccount />} />
         <Route
           path="/"
           element={
@@ -195,7 +198,8 @@ const App = () => {
           />
           <Route path="change-username" element={<ChangeUsername />} />
           <Route path="help-and-support" element={<HelpAndSupport />} />
-          <Route path="about" element={<About />} />
+          <Route path="about" element={<About />} />\
+          <Route path="account-ownership" element={<AccountOwnerShip />} />
         </Route>
         <Route
           path="*"
