@@ -41,7 +41,9 @@ const Signup = () => {
     setLoading(true);
     const response = await signup(input);
     if (response.success) {
-      navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 100);
     } else {
       setError(response.message);
     }
@@ -49,7 +51,7 @@ const Signup = () => {
   };
 
   useEffect(() => {
-    if (token) {
+    if (token && !localStorage.getItem("isNewUser")) {
       navigate("/");
     }
   }, [token, navigate]);
