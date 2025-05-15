@@ -53,7 +53,7 @@ const SidebarNotifications = ({ notification, followRequest }) => {
         >
           <img
             src={
-              notification.from.profileImg ||
+              notification.from?.profileImg ||
               "https://res.cloudinary.com/djbqtwzyf/image/upload/v1744042607/default_img_gszetk.png"
             }
             alt="Profile"
@@ -61,8 +61,8 @@ const SidebarNotifications = ({ notification, followRequest }) => {
           />
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-600 truncate">
-              <Link to={`/profile/${notification.from.username}`}>
-                {notification.from.username}
+              <Link to={`/profile/${notification.from?.username}`}>
+                {notification.from?.username}
               </Link>
             </h2>
             <span className="block text-xs text-gray-700 dark:text-gray-500 truncate">
