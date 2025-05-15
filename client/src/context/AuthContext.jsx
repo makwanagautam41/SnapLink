@@ -60,8 +60,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(`${BASE_URL}/users/signup`, input);
       if (response.data.success) {
-        localStorage.setItem("token", response.data.token);
         localStorage.setItem("isNewUser", "true");
+        localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
         setError("");
         return { success: true };
