@@ -51,6 +51,7 @@ const signup = async (req, res) => {
       phone,
       profileImg: defaultAvatar,
       gender,
+      dateOfBirth: "",
     });
 
     const token = createToken(user._id);
@@ -271,7 +272,7 @@ const profile = async (req, res) => {
       userModel
         .findById(userId)
         .select(
-          "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends isVerified"
+          "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends isVerified dateOfBirth"
         )
         .populate("followers", "username profileImg name")
         .populate("following", "username profileImg name")
@@ -615,6 +616,60 @@ const changeUsername = async (req, res) => {
     });
   } catch (err) {
     console.error("Username change error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const changeDateOfBirth = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { newDateOfBirth } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID required" });
+    }
+
+    if (!newDateOfBirth) {
+      return res
+        .status(400)
+        .json({ success: false, message: "New date of birth is required" });
+    }
+
+    const parsedDate = new Date(newDateOfBirth);
+    if (isNaN(parsedDate.getTime())) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid date format" });
+    }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: { dateOfBirth: parsedDate } },
+        { new: true, runValidators: true }
+      )
+      .lean();
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Date of birth updated successfully",
+      user: {
+        name: updatedUser.name,
+        dateOfBirth: updatedUser.dateOfBirth,
+        username: updatedUser.username,
+        email: updatedUser.email,
+      },
+    });
+  } catch (err) {
+    console.error("Date of birth change error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -1706,6 +1761,7 @@ export {
   updateEmail,
   updatePhone,
   changeUsername,
+  changeDateOfBirth,
   updateProfileImg,
   removeProfileImg,
   updatePassword,

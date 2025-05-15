@@ -41,7 +41,6 @@ import CancelAccountDeletion from "./pages/CancelAccountDeletion.jsx";
 const App = () => {
   const location = useLocation();
   const state = location.state;
-  const { theme } = useTheme();
 
   return (
     <div className="flex min-h-screen">

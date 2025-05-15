@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post(`${BASE_URL}/users/signup`, input);
       if (response.data.success) {
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("isNewUser", "true");
         setToken(response.data.token);
         setError("");
         return { success: true };
@@ -395,6 +396,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const changeDateOfBirth = async (newDateOfBirth) => {
+    try {
+      const res = await axios.put(
+        `${BASE_URL}/users/change-date-of-birth`,
+        { newDateOfBirth },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      await getLoggedInUserInfor();
+      return res.data;
+    } catch (err) {
+      console.error("Error updating DOB:", err);
+      return { success: false, message: "Server error" };
+    }
+  };
+
   const sendOtp = async (path) => {
     try {
       const response = await axios.post(
@@ -643,6 +663,7 @@ export const AuthProvider = ({ children }) => {
         manageCloseFriend,
         manageUserBlocking,
         changeUsername,
+        changeDateOfBirth,
         sendOtp,
         verifyUser,
         deactivateAccount,

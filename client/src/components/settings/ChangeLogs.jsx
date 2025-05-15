@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, version } from "react";
 import PostTopBar from "../PostTopBar";
 import { Icon } from "../../utils/icons";
 import { motion } from "framer-motion";
@@ -39,6 +39,10 @@ const ChangeLogs = () => {
           details: ["Added account deletion"],
         },
       ],
+    },
+    {
+      version: "1.2.0",
+      details: ["Added an Account Setup functionality after the signup."],
     },
   ];
 

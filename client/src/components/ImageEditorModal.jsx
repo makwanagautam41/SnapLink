@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Cropper from "react-easy-crop";
 import { Icon } from "../utils/icons";
 import getCroppedImg from "../utils/cropImage";
+import useThemeStyles from "../utils/themeStyles";
 
-// Predefined filter presets like Instagram
 const FILTER_PRESETS = [
   {
     name: "Normal",
@@ -134,6 +134,8 @@ const ImageEditorModal = ({
   const [saturation, setSaturation] = useState(1);
   const [blur, setBlur] = useState(0);
   const [sharpness, setSharpness] = useState(0);
+
+  const styles = useThemeStyles();
 
   const onCropComplete = (_, areaPixels) => setCroppedAreaPixels(areaPixels);
 

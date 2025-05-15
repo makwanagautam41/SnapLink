@@ -14,6 +14,7 @@ import {
   updateEmail,
   updatePhone,
   changeUsername,
+  changeDateOfBirth,
   updateProfileImg,
   removeProfileImg,
   updatePassword,
@@ -52,6 +53,7 @@ userRouter.put("/update", authUser, update);
 userRouter.put("/update-email", authUser, updateEmail);
 userRouter.put("/update-phone", authUser, updatePhone);
 userRouter.put("/change-username", authUser, changeUsername);
+userRouter.put("/change-date-of-birth", authUser, changeDateOfBirth);
 userRouter.put(
   "/update-profile-img",
   authUser,

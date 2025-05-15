@@ -127,7 +127,7 @@ const ReactivateAccount = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md mx-auto mt-10 p-6 gap-4 text-gray-700 rounded-xl shadow-md">
+    <div className="flex flex-col items-center w-full max-w-md mx-auto mt-10 p-6 gap-4 text-gray-700 rounded-xl">
       <div className="w-full flex items-center justify-between mb-4">
         <button
           onClick={() => navigate(-1)}
@@ -150,6 +150,9 @@ const ReactivateAccount = () => {
           <Title text2="Enter Registered Username, Email, and Password" />
 
           <div className="pb-2">
+            <label htmlFor="password" className="block dark:text-gray-600">
+              Username
+            </label>
             <input
               onChange={(e) => setUsername(e.target.value)}
               value={username}
@@ -160,6 +163,9 @@ const ReactivateAccount = () => {
             />
           </div>
           <div className="pb-2">
+            <label htmlFor="password" className="block dark:text-gray-600">
+              Email
+            </label>
             <input
               onChange={(e) => setEmail(e.target.value)}
               value={email}

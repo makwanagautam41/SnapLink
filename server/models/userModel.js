@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
         default: "",
       },
     },
+    dateOfBirth: {
+      type: Date,
+      default: "",
+    },
     savedPosts: [
       {
         type: mongoose.Schema.Types.ObjectId,
