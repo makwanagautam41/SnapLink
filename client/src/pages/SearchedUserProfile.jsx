@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import useUserSearch from "../hooks/useUserSearch.js";
 import { usePost } from "../context/PostContext.jsx";
 import { useAuth } from "../context/AuthContext";
@@ -15,6 +15,7 @@ import Modal from "../components/Modal.jsx";
 
 const SearchedUserProfile = () => {
   const { username } = useParams();
+  const navigate = useNavigate();
   const styles = useThemeStyles();
   const { searchUserProfileData, searchedUser, setSearchedUser } =
     useUserSearch();
@@ -199,6 +200,9 @@ const SearchedUserProfile = () => {
                   <Icon.ArrowDown />
                 </button>
                 <button
+                  onClick={() =>
+                    navigate(`/message/${searchedUser.username}/chat`)
+                  }
                   className={`px-6 py-2 rounded-md flex items-center gap-2 cursor-pointer ${styles.bg2}`}
                 >
                   Message

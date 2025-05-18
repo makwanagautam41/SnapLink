@@ -5,16 +5,62 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-
+import { Server } from "socket.io";
+import http from "http";
 import connectDB from "./config/mongoDB.js";
+import userModal from "./models/userModel.js";
 
 import userRoutes from "./routes/userRouter.js";
 import postRouter from "./routes/postRouter.js";
 import storyRouter from "./routes/storyRouter.js";
+import messageRouter from "./routes/messageRouter.js";
 
 // dotenv.config();
 const app = express();
+const server = http.createServer(app);
 connectDB();
+export const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+// store online users with full data
+export const userSocketMap = {};
+export const onlineUsersData = {};
+
+// socket connection
+io.on("connection", async (socket) => {
+  const userId = socket.handshake.query.userId;
+  console.log("User Connected : ", userId);
+
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+
+    try {
+      const userData = await userModal
+        .findById(userId)
+        .select("username profileImg name");
+      if (userData) {
+        onlineUsersData[userId] = {
+          _id: userId,
+          username: userData.username,
+          profileImg: userData.profileImg,
+          name: userData.name,
+        };
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  }
+
+  io.emit("getOnlineUsers", Object.values(onlineUsersData));
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected :", userId);
+    delete userSocketMap[userId];
+    delete onlineUsersData[userId];
+    io.emit("getOnlineUsers", Object.values(onlineUsersData));
+  });
+});
 
 // middlewares
 app.use(helmet());
@@ -34,6 +80,7 @@ app.use(limiter);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRouter);
 app.use("/api/story", storyRouter);
+app.use("/api/messages", messageRouter);
 
 app.get("/", (req, res) => res.send("API is running..."));
 
@@ -48,6 +95,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: "Something went wrong!" });
 });
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });

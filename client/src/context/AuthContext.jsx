@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const AuthContext = createContext();
 const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
@@ -11,6 +12,8 @@ export const AuthProvider = ({ children }) => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [followRequests, setFollowRequests] = useState([]);
 
@@ -42,6 +45,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data.success) {
         localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
+        connectSocket(response.data.user);
         setError("");
         return { success: true };
       }
@@ -63,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data.success) {
         localStorage.setItem("isNewUser", "true");
         localStorage.setItem("token", response.data.token);
+        connectSocket(response.data.user);
         setToken(response.data.token);
         setError("");
         return { success: true };
@@ -613,6 +618,22 @@ export const AuthProvider = ({ children }) => {
     return "just now";
   };
 
+  const connectSocket = (user) => {
+    if (!user || socket?.connected) return;
+    const newSocket = io(backEndUrl, {
+      query: {
+        userId: user._id,
+      },
+    });
+
+    newSocket.connect();
+    setSocket(newSocket);
+
+    newSocket.on("getOnlineUsers", (userIds) => {
+      setOnlineUsers(userIds);
+    });
+  };
+
   useEffect(() => {
     const tempToken = localStorage.getItem("token");
     if (tempToken) {
@@ -626,6 +647,12 @@ export const AuthProvider = ({ children }) => {
       getLoggedInUserInfor();
     }
   }, [token]);
+
+  useEffect(() => {
+    if (token && user) {
+      connectSocket(user);
+    }
+  }, [token, user]);
 
   return (
     <AuthContext.Provider
@@ -672,6 +699,10 @@ export const AuthProvider = ({ children }) => {
         verifyOtpAndReactivateAccount,
         deleteAccount,
         cancelAccountDeletion,
+        onlineUsers,
+        setOnlineUsers,
+        socket,
+        setSocket,
       }}
     >
       {children}

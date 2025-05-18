@@ -1,44 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "../utils/icons";
 import useThemeStyles from "../utils/themeStyles";
 import { useAuth } from "../context/AuthContext";
-
-const chatUsers = {
-  johnshinoda: {
-    name: "John Shinoda",
-    profileImg: "https://randomuser.me/api/portraits/men/37.jpg",
-    lastMessage: "All good here!",
-    lastMessageTime: "08:32",
-    online: true,
-  },
-  dinaharrison: {
-    name: "Dina Harrison",
-    profileImg: "https://randomuser.me/api/portraits/women/38.jpg",
-    lastMessage: "See ya 😊",
-    lastMessageTime: "20:28",
-    online: false,
-  },
-  mandyguoles: {
-    name: "Mandy Guoles",
-    profileImg: "https://randomuser.me/api/portraits/women/39.jpg",
-    lastMessage: "Let me be alone, please...",
-    lastMessageTime: "16:43",
-    online: true,
-  },
-  sampettersen: {
-    name: "Sam Pettersen",
-    profileImg: "https://randomuser.me/api/portraits/men/40.jpg",
-    lastMessage: "Your what? 😅",
-    lastMessageTime: "18:30",
-    online: false,
-  },
-};
+import { useChat } from "../context/ChatContext";
 
 const Message = ({ isVisible }) => {
   const navigate = useNavigate();
   const styles = useThemeStyles();
-  const { user } = useAuth();
+  const { user, onlineUsers } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const { users, unSeenMessages, setSelectedUser, getUsersMessages } =
+    useChat();
+
+  useEffect(() => {
+    getUsersMessages();
+  }, []);
+
+  const handleUserSelect = (selectedUser) => {
+    setSelectedUser(selectedUser);
+    navigate(`/message/${selectedUser.username}/chat`);
+  };
+
+  const getLastMessageTime = (timestamp) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   return (
     <div className="flex">
@@ -66,21 +54,17 @@ const Message = ({ isVisible }) => {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="font-semibold">Friends Online</span>
-            <span className="text-xs">
-              {Object.values(chatUsers).filter((u) => u.online).length}
-            </span>
+            <span className="text-xs">{onlineUsers.length}</span>
           </div>
           <div className="flex -space-x-2">
-            {Object.values(chatUsers)
-              .filter((u) => u.online)
-              .map((user, i) => (
-                <img
-                  key={i}
-                  src={user.profileImg}
-                  alt={user.name}
-                  className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800"
-                />
-              ))}
+            {onlineUsers.map((user, i) => (
+              <img
+                key={i}
+                src={user.profileImg}
+                alt={user.name}
+                className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800"
+              />
+            ))}
           </div>
         </div>
         {/* Chats */}
@@ -90,36 +74,56 @@ const Message = ({ isVisible }) => {
               type="text"
               placeholder="Search chat..."
               className={`w-full px-3 py-2 rounded ${styles.input} focus:outline-none`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
             />
           </div>
           <div className="h-[calc(100vh-200px)] overflow-y-auto">
-            {Object.entries(chatUsers).map(([username, chatUser]) => (
-              <div
-                key={username}
-                className={`flex items-center p-2 rounded ${styles.hover} overflow-hidden cursor-pointer mb-2`}
-                onClick={() => navigate(`/message/${username}/chat`)}
-              >
-                <div className="relative">
-                  <img
-                    src={chatUser.profileImg}
-                    alt={chatUser.name}
-                    className="w-12 h-12 rounded-full mr-3"
-                  />
-                  {chatUser.online && (
-                    <div className="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="font-semibold">{chatUser.name}</div>
-                  <div className="text-xs truncate text-gray-500">
-                    {chatUser.lastMessage}
+            {users
+              .filter((chatUser) =>
+                chatUser.name.toLowerCase().includes(searchQuery)
+              )
+              .map((chatUser) => (
+                <div
+                  key={chatUser._id}
+                  className={`flex items-center p-2 rounded ${styles.hover} overflow-hidden cursor-pointer mb-2`}
+                  onClick={() => handleUserSelect(chatUser)}
+                >
+                  <div className="relative">
+                    <img
+                      src={chatUser.profileImg}
+                      alt={chatUser.name}
+                      className="w-12 h-12 rounded-full mr-3"
+                    />
+                    {chatUser.online && (
+                      <div className="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">{chatUser.name}</div>
+                    <div className="text-xs truncate text-gray-500">
+                      {chatUser.lastMessage || "No messages yet"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="text-xs ml-2 text-gray-400">
+                      {getLastMessageTime(chatUser.lastMessageTime)}
+                    </div>
+                    {unSeenMessages[chatUser._id] && (
+                      <div className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mt-1">
+                        {unSeenMessages[chatUser._id]}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-xs ml-2 text-gray-400">
-                  {chatUser.lastMessageTime}
-                </div>
+              ))}
+            {users.filter((chatUser) =>
+              chatUser.name.toLowerCase().includes(searchQuery)
+            ).length === 0 && (
+              <div className="text-center text-gray-500 mt-4">
+                No users found.
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

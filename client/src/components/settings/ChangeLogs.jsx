@@ -44,6 +44,13 @@ const ChangeLogs = () => {
       version: "1.2.0",
       details: ["Added an Account Setup functionality after the signup."],
     },
+    {
+      version: "1.3.0",
+      details: [
+        "Added a Chatting functionality.",
+        "Now You can send the message to users.",
+      ],
+    },
   ];
 
   const [openVersion, setOpenVersion] = useState(null);

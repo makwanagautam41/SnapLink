@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { PostProvider } from "./context/PostContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { StoryProvider } from "./context/StoryContext.jsx";
+import { ChatProvider } from "./context/ChatContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <ThemeProvider>
@@ -13,10 +14,12 @@ createRoot(document.getElementById("root")).render(
       <PostProvider>
         <StoryProvider>
           <BrowserRouter>
-            <App />
+            <ChatProvider>
+              <App />
+            </ChatProvider>
           </BrowserRouter>
         </StoryProvider>
       </PostProvider>
-    </AuthProvider>
+    </AuthProvider> 
   </ThemeProvider>
 );
