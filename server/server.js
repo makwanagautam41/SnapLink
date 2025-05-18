@@ -20,7 +20,11 @@ const app = express();
 const server = http.createServer(app);
 connectDB();
 export const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 // store online users with full data
