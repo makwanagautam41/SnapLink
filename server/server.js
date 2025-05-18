@@ -19,10 +19,21 @@ import messageRouter from "./routes/messageRouter.js";
 const app = express();
 const server = http.createServer(app);
 connectDB();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://snaplink-gilt.vercel.app",
+];
+
 export const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS (Socket.IO)"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   },
 });
@@ -69,7 +80,18 @@ io.on("connection", async (socket) => {
 // middlewares
 app.use(helmet());
 app.use(compression());
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS (Express)"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "20mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
