@@ -58,8 +58,8 @@ const SERVER_URL = "http://localhost:4000/api/users";
 const sendFollowRequests = async () => {
   try {
     const loginRes = await axios.post(`${SERVER_URL}/signin`, {
-      email: "alphaxmg@gmail.com",
-      password: "alphaXmg_411",
+      email: "makwanagautam411@gmail.com",
+      password: "gautamXalpha_416",
     });
 
     const token = loginRes.data.token;

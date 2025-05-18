@@ -27,16 +27,16 @@ import CloseFriends from "./components/settings/CloseFriends";
 import ReportProblem from "./components/settings/ReportProblem";
 import SwitchAppearance from "./components/settings/SwitchAppearance";
 import ChangeUsername from "./components/settings/ChangeUsername";
-import HelpAndSupport from "./components/settings/HelpAndSupport.jsx";
-import ForgotPassword from "./pages/ForgotPassword.jsx";
-
-import { useTheme } from "./context/ThemeContext";
-import AccountVerification from "./components/settings/AccountVerification.jsx";
-import ViewStories from "./pages/ViewStories.jsx";
-import ChangeLogs from "./components/settings/ChangeLogs.jsx";
-import AccountOwnerShip from "./components/settings/AccountOwnerShip.jsx";
-import ReactivateAccount from "./pages/ReactivateAccount.jsx";
-import CancelAccountDeletion from "./pages/CancelAccountDeletion.jsx";
+import HelpAndSupport from "./components/settings/HelpAndSupport";
+import ForgotPassword from "./pages/ForgotPassword";
+import AccountVerification from "./components/settings/AccountVerification";
+import ViewStories from "./pages/ViewStories";
+import ChangeLogs from "./components/settings/ChangeLogs";
+import AccountOwnerShip from "./components/settings/AccountOwnerShip";
+import ReactivateAccount from "./pages/ReactivateAccount";
+import CancelAccountDeletion from "./pages/CancelAccountDeletion";
+import Message from "./pages/Message.jsx";
+import Chat from "./pages/Chat.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -183,6 +183,34 @@ const App = () => {
             </ProtectedPage>
           }
         />
+        <Route
+          path="/message"
+          element={
+            <ProtectedPage>
+              <Sidebar />
+              <div className="flex-1 lg:ml-64 z-10">
+                <Message isVisible={true} />
+              </div>
+            </ProtectedPage>
+          }
+        />
+        <Route
+          path="/message/:username/chat"
+          element={
+            <ProtectedPage>
+              <Sidebar />
+              <div className="flex lg:ml-64 z-10 w-full">
+                <div className="hidden lg:block">
+                  <Message />
+                </div>
+                <div className="w-full">
+                  <Chat />
+                </div>
+              </div>
+            </ProtectedPage>
+          }
+        />
+
         <Route path="/settings" element={<SettingsLayout />}>
           <Route index element={<Settings />} />
           <Route path="personal-details" element={<PersonalDetails />} />

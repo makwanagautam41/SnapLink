@@ -272,11 +272,20 @@ const profile = async (req, res) => {
       userModel
         .findById(userId)
         .select(
-          "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends isVerified dateOfBirth"
+          "name username email profileImg bio phone followers following profileVisibility followRequests savedPosts gender closeFriends isVerified dateOfBirth savedPosts"
         )
         .populate("followers", "username profileImg name")
         .populate("following", "username profileImg name")
         .populate("blocked", "username profileImg name")
+        .populate({
+          path: "savedPosts",
+          populate: {
+            path: "postedBy",
+            select: "username profileImg name",
+          },
+          select:
+            "caption location images likes postVisibility comments createdAt",
+        })
         .lean(),
       postModel.countDocuments({ postedBy: userId }),
     ]);

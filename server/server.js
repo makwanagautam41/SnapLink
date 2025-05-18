@@ -20,7 +20,7 @@ connectDB();
 app.use(helmet());
 app.use(compression());
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 

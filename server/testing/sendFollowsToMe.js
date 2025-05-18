@@ -54,7 +54,7 @@ const users = [
 ];
 
 const SERVER_URL = "http://localhost:4000/api/users";
-const FOLLOW_USERNAME = "alphaxmg";
+const FOLLOW_USERNAME = "gautammakwana";
 
 const sendFollowRequests = async () => {
   for (const user of users) {

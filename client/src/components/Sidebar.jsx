@@ -55,6 +55,7 @@ const Sidebar = () => {
 
   const { theme, toggleTheme } = useTheme();
   const styles = useThemeStyles();
+  const hideComponent = location.pathname.endsWith("/chat");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -319,46 +320,49 @@ const Sidebar = () => {
       </aside>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav
-        className={`lg:hidden fixed bottom-0 left-0 w-full p-4 py-3 flex justify-around z-50 rounded-t-2xl ${
-          theme === "light"
-            ? "shadow-[0_-4px_8px_rgba(0,0,0,0.1)] bg-white"
-            : "bg-gray-900 shadow-[0_-4px_12px_rgba(255,255,255,0.2)]"
-        }`}
-      >
-        {navItems
-          .filter(
-            (item) => !["explore", "notifications", "create"].includes(item.id)
-          )
-          .map((item) => (
-            <motion.button
-              key={item.id}
-              onClick={() => {
-                if (item.id === "profile") {
-                  navigate(`/${user.username}`);
-                } else if (item.id === "search") {
-                  navigate("/explore/search");
-                } else {
-                  handleNavigation(item.id);
-                }
-              }}
-              className={`flex flex-col cursor-pointer items-center p-2 text-xs font-semibold relative ${
-                activeItem === item.id
-                  ? "text-[#009688]"
-                  : "hover:text-[#009688]"
-              }`}
-              animate={{
-                scale: activeItem === item.id ? 1.1 : 1,
-                transition: { type: "spring", stiffness: 300, damping: 20 },
-              }}
-            >
-              {item.icon}
-              {activeItem === item.id && (
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#009688] rounded-md"></div>
-              )}
-            </motion.button>
-          ))}
-      </nav>
+      {!hideComponent && (
+        <nav
+          className={`lg:hidden fixed bottom-0 left-0 w-full p-4 py-3 flex justify-around z-50 rounded-t-2xl ${
+            theme === "light"
+              ? "shadow-[0_-4px_8px_rgba(0,0,0,0.1)] bg-white"
+              : "bg-gray-900 shadow-[0_-4px_12px_rgba(255,255,255,0.2)]"
+          }`}
+        >
+          {navItems
+            .filter(
+              (item) =>
+                !["explore", "notifications", "create"].includes(item.id)
+            )
+            .map((item) => (
+              <motion.button
+                key={item.id}
+                onClick={() => {
+                  if (item.id === "profile") {
+                    navigate(`/${user.username}`);
+                  } else if (item.id === "search") {
+                    navigate("/explore/search");
+                  } else {
+                    handleNavigation(item.id);
+                  }
+                }}
+                className={`flex flex-col cursor-pointer items-center p-2 text-xs font-semibold relative ${
+                  activeItem === item.id
+                    ? "text-[#009688]"
+                    : "hover:text-[#009688]"
+                }`}
+                animate={{
+                  scale: activeItem === item.id ? 1.1 : 1,
+                  transition: { type: "spring", stiffness: 300, damping: 20 },
+                }}
+              >
+                {item.icon}
+                {activeItem === item.id && (
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#009688] rounded-md"></div>
+                )}
+              </motion.button>
+            ))}
+        </nav>
+      )}
 
       {/* Notifications Panel */}
       <div

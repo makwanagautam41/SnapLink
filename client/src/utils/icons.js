@@ -27,6 +27,7 @@ import {
   BsToggleOff,
   BsToggleOn,
   BsFillPostcardHeartFill,
+  BsChatHeartFill,
 } from "react-icons/bs";
 
 import {
@@ -77,6 +78,7 @@ export const Icon = {
   User: BiUser,
   Menu: HiOutlineMenu,
   About: FaInfoCircle,
+  Chat: BsChatHeartFill,
 
   Heart: BiHeart,
   HeartOutline: FaRegHeart,

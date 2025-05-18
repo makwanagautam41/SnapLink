@@ -3,6 +3,7 @@ import axios from "axios";
 
 const AuthContext = createContext();
 const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
+const backEndUrl = `${import.meta.env.VITE_BACKEND_URL}`;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState("");

@@ -17,6 +17,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const styles = useThemeStyles();
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [filterType, setFilterType] = useState("myposts");
   const {
     user,
     token,
@@ -57,6 +58,8 @@ const Profile = () => {
       navigate(`/${user.username}`);
     }
   }, [showModal, navigate, user]);
+
+  const filteredPosts = filterType === "saved" ? user.savedPosts || [] : posts;
 
   const handleImageClick = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -164,6 +167,28 @@ const Profile = () => {
           styles={styles}
         />
       </div>
+      <div className="flex justify-center gap-4 mt-4 mb-6">
+        <button
+          onClick={() => setFilterType("myposts")}
+          className={`px-4 py-2 rounded font-semibold ${
+            filterType === "myposts"
+              ? "bg-blue-500 text-white"
+              : `${styles.bg} text-gray-500`
+          }`}
+        >
+          My Posts
+        </button>
+        <button
+          onClick={() => setFilterType("saved")}
+          className={`px-4 py-2 rounded font-semibold ${
+            filterType === "saved"
+              ? "bg-blue-500 text-white"
+              : `${styles.bg} text-gray-500`
+          }`}
+        >
+          Saved
+        </button>
+      </div>
 
       <input
         type="file"
@@ -222,12 +247,12 @@ const Profile = () => {
           <div className="col-span-full text-center text-gray-500">
             Loading posts...
           </div>
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
           <div className="col-span-full text-center text-gray-500">
-            No posts yet.
+            {filterType === "saved" ? "No saved posts yet." : "No posts yet."}
           </div>
         ) : (
-          posts.map((post) => (
+          filteredPosts.map((post) => (
             <Link
               to={`/${user.username}/post/${post._id}`}
               state={{ backgroundLocation: location }}

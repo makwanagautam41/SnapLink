@@ -47,7 +47,10 @@ const PostTopBar = ({ title }) => {
         scrollingUp ? "-translate-y-full" : "translate-y-0"
       } ${styles.bg}`}
     >
-      <button className="flex items-center" onClick={() => navigate(-1)}>
+      <button
+        className="flex items-center cursor-pointer"
+        onClick={() => navigate(-1)}
+      >
         <Icon.ArrowBack size={24} />
       </button>
       <p className="text-lg font-semibold">{title}</p>
