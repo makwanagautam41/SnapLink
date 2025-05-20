@@ -44,7 +44,13 @@ import { TbUserEdit, TbMessageReport } from "react-icons/tb";
 
 import { ImBlocked } from "react-icons/im";
 
-import { FaHeart, FaXTwitter, FaCirclePlus } from "react-icons/fa6";
+import {
+  FaHeart,
+  FaXTwitter,
+  FaCirclePlus,
+  FaRegImages,
+  FaLink,
+} from "react-icons/fa6";
 
 import {
   FaRegHeart,
@@ -59,6 +65,8 @@ import {
   FaRegCircle,
   FaSpinner,
   FaInfoCircle,
+  FaRegBellSlash,
+  FaRegClock,
 } from "react-icons/fa";
 
 import {
@@ -79,6 +87,8 @@ export const Icon = {
   Menu: HiOutlineMenu,
   About: FaInfoCircle,
   Chat: BsChatHeartFill,
+  Image: FaRegImages,
+  Link: FaLink,
 
   Heart: BiHeart,
   HeartOutline: FaRegHeart,
@@ -95,6 +105,8 @@ export const Icon = {
   Reel: PiFilmReel,
   Bookmark: FaRegBookmark,
   Post: BsFillPostcardHeartFill,
+  Mute: FaRegBellSlash,
+  Clock: FaRegClock,
 
   ChevronDown: FaChevronDown,
   Setting: FaCog,

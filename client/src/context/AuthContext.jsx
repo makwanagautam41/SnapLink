@@ -618,41 +618,41 @@ export const AuthProvider = ({ children }) => {
     return "just now";
   };
 
-  const connectSocket = (user) => {
-    if (!user || socket?.connected) return;
-    const newSocket = io(backEndUrl, {
-      query: {
-        userId: user._id,
-      },
-    });
+    const connectSocket = (user) => {
+      if (!user || socket?.connected) return;
+      const newSocket = io(backEndUrl, {
+        query: {
+          userId: user._id,
+        },
+      });
 
-    newSocket.connect();
-    setSocket(newSocket);
+      newSocket.connect();
+      setSocket(newSocket);
 
-    newSocket.on("getOnlineUsers", (userIds) => {
-      setOnlineUsers(userIds);
-    });
-  };
+      newSocket.on("getOnlineUsers", (userIds) => {
+        setOnlineUsers(userIds);
+      });
+    };
 
-  useEffect(() => {
-    const tempToken = localStorage.getItem("token");
-    if (tempToken) {
-      setToken(tempToken);
-    }
-    setLoading(false);
-  }, []);
+    useEffect(() => {
+      const tempToken = localStorage.getItem("token");
+      if (tempToken) {
+        setToken(tempToken);
+      }
+      setLoading(false);
+    }, []);
 
-  useEffect(() => {
-    if (token) {
-      getLoggedInUserInfor();
-    }
-  }, [token]);
+    useEffect(() => {
+      if (token) {
+        getLoggedInUserInfor();
+      }
+    }, [token]);
 
-  useEffect(() => {
-    if (token && user) {
-      connectSocket(user);
-    }
-  }, [token, user]);
+    useEffect(() => {
+      if (token && user) {
+        connectSocket(user);
+      }
+    }, [token, user]);
 
   return (
     <AuthContext.Provider

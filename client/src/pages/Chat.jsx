@@ -5,14 +5,26 @@ import useThemeStyles from "../utils/themeStyles";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
+import Modal from "../components/Modal";
+import { Icon } from "../utils/icons";
+import { motion } from "framer-motion";
 
 const Chat = () => {
+  const bounceTransition = {
+    y: {
+      duration: 0.6,
+      repeat: Infinity,
+      repeatType: "reverse",
+      ease: "easeInOut",
+    },
+  };
   const { username } = useParams();
   const { user, onlineUsers } = useAuth();
   const styles = useThemeStyles();
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const {
     messages,
@@ -21,9 +33,8 @@ const Chat = () => {
     getMessages,
     sendMessage,
     users,
+    isTyping,
   } = useChat();
-
-  console.log(onlineUsers);
 
   useEffect(() => {
     if (users.length > 0 && username) {
@@ -83,28 +94,38 @@ const Chat = () => {
         {/* Chat Header */}
         {selectedUser ? (
           <div className="flex items-center p-4 border-b border-gray-200 dark:border-gray-800">
-            <img
-              src={selectedUser.profileImg}
-              alt={selectedUser.name}
-              className="w-12 h-12 rounded-full mr-3"
-            />
-            <div>
-              <div className="font-semibold">{selectedUser.name}</div>
-              <div
-                className={`text-xs ${
-                  onlineUsers.some(
+            <div
+              onClick={() => {
+                if (window.innerWidth < 1024) {
+                  setShowDetailsModal(true);
+                }
+              }}
+              className="flex items-center cursor-pointer"
+            >
+              <img
+                src={selectedUser.profileImg}
+                alt={selectedUser.name}
+                className="w-12 h-12 rounded-full mr-3"
+              />
+              <div>
+                <div className="font-semibold">{selectedUser.name}</div>
+                <div
+                  className={`text-xs ${
+                    onlineUsers.some(
+                      (onlineUser) =>
+                        onlineUser._id === selectedUser._id.toString()
+                    )
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {onlineUsers.some(
                     (onlineUser) =>
                       onlineUser._id === selectedUser._id.toString()
                   )
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
-              >
-                {onlineUsers.some(
-                  (onlineUser) => onlineUser._id === selectedUser._id.toString()
-                )
-                  ? "Online"
-                  : "Offline"}
+                    ? "Online"
+                    : "Offline"}
+                </div>
               </div>
             </div>
             <div className="ml-auto text-gray-400 text-sm">
@@ -118,43 +139,151 @@ const Chat = () => {
         )}
         {/* Messages */}
         <div
-          className={`flex-1 overflow-y-auto p-4 space-y-4`}
+          className="flex-1 overflow-y-auto p-4 space-y-4"
           style={{ minHeight: 0, maxHeight: "calc(100vh - 220px)" }}
         >
           {messages && messages.length > 0 ? (
-            messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex ${
-                  msg.senderId === user._id ? "justify-end" : "justify-start"
-                }`}
-              >
+            messages.map((msg, i) => {
+              const isSender = msg.senderId === user._id;
+              return (
                 <div
-                  className={`max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow text-sm ${
-                    msg.senderId === user._id
-                      ? "bg-blue-100 dark:bg-blue-800 text-gray-900 dark:text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                  key={i}
+                  className={`flex ${
+                    isSender ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {msg.text}
-                  <div className="text-xs text-gray-400 text-right mt-1">
-                    {formatMessageTime(msg.createdAt)}
+                  <div
+                    className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
+                      isSender
+                    )}`}
+                  >
+                    {msg.text}
+                    <div className="text-[10px] text-gray-400 text-right mt-1">
+                      {formatMessageTime(msg.createdAt)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <div className="text-center text-gray-400">
-              No messages yet. Start the conversation!
-            </div>
+            <div className="text-center text-gray-400">No messages yet</div>
           )}
           <div ref={messagesEndRef} />
+          {isTyping && selectedUser && (
+            <div className="flex justify-start">
+              <div
+                className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
+                  false
+                )}`}
+              >
+                <div className="flex items-center space-x-1 h-4">
+                  <motion.span
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: ["100%", "-100%"] }}
+                    transition={{
+                      ...bounceTransition.y,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: 0,
+                    }}
+                  />
+                  <motion.span
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: ["100%", "-100%"] }}
+                    transition={{
+                      ...bounceTransition.y,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: 0.2,
+                    }}
+                  />
+                  <motion.span
+                    className="w-2 h-2 rounded-full bg-gray-400"
+                    animate={{ y: ["100%", "-100%"] }}
+                    transition={{
+                      ...bounceTransition.y,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: 0.4,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
+        {showDetailsModal && (
+          <Modal onClose={() => setShowDetailsModal(false)}>
+            <div className="w-full h-screen sm:max-w-md sm:h-auto sm:rounded-lg">
+              <div className="flex flex-col items-center mt-4">
+                <img
+                  src={selectedUser.profileImg}
+                  alt={selectedUser.name}
+                  className="w-20 h-20 rounded-full shadow-md"
+                />
+                <h2 className="mt-2 text-lg font-semibold">
+                  {selectedUser.name}
+                </h2>
+                <div className="text-sm text-gray-500 mt-1">
+                  @{selectedUser.username}
+                </div>
+              </div>
+              <div className="flex space-x-6 justify-center items-center mt-5">
+                <div className="flex flex-col p-4 items-center">
+                  <Icon.User className="text-2xl" />
+                  <p className="text-sm">Profile</p>
+                </div>
+                <div className="flex flex-col p-2 items-center">
+                  <Icon.Search className="text-2xl" />
+                  <p className="text-sm">Search</p>
+                </div>
+                <div className="flex flex-col p-2 items-center">
+                  <Icon.Mute className="text-2xl" />
+                  <p className="text-sm">Mute</p>
+                </div>
+                <div className="flex flex-col p-2 items-center">
+                  <Icon.DotsHorizontal className="text-2xl" />
+                  <p className="text-sm">Options</p>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={selectedUser.profileImg}
+                    alt={selectedUser.name}
+                    className="w-9 h-9 rounded-full"
+                  />
+                  <div className="flex flex-col items-start">
+                    <p className="text-sm font-semibold">Theme</p>
+                    <p className="text-xs text-gray-400">Default</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <Icon.Clock size={35} className="text-gray-400" />
+                  <div className="flex flex-col items-start">
+                    <p className="text-sm font-semibold">Theme</p>
+                    <p className="text-xs text-gray-400">Default</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-4">
+                  <Icon.Lock size={35} className="text-gray-400" />
+                  <p>Privacy & safety</p>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+
         {/* Message Input */}
         <form
           onSubmit={handleSendMessage}
           className={`p-4 border-t border-gray-200 dark:border-gray-800 ${styles.bg} flex items-center`}
         >
+          <div className="flex items-center gap-2">
+            <Icon.Image className="text-2xl" />
+            <Icon.Link className="text-2xl" />
+          </div>
           <input
             type="text"
             value={messageText}
@@ -162,9 +291,14 @@ const Chat = () => {
             placeholder="Type your message"
             className={`flex-1 px-4 py-2 rounded-full ${styles.input} focus:outline-none`}
           />
-          <button
+          <motion.button
             type="submit"
-            className="ml-2 bg-blue-500 hover:bg-blue-600 hover:rotate-45 cursor-pointer text-white rounded-full p-3 transition"
+            className="hidden lg:block ml-2 bg-blue-500 text-white rounded-full p-3 cursor-pointer"
+            whileHover={{ rotate: 45, scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <svg
               className="button__icon"
@@ -183,7 +317,7 @@ const Chat = () => {
                 fill="#fff"
               ></path>
             </svg>
-          </button>
+          </motion.button>
         </form>
       </div>
       {/* Right Sidebar (User Info & Shared Files) */}

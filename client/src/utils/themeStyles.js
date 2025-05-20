@@ -14,6 +14,13 @@ const getThemeStyle = (theme) => ({
       ? "hover:bg-gray-200 hover:text-gray-900"
       : "hover:bg-gray-900 hover:text-white",
   active: theme === "light" ? "bg-gray-200" : "bg-gray-900",
+
+  messageBubble: (isSender) =>
+    isSender
+      ? "bg-black text-white rounded-2xl rounded-br-sm"
+      : theme === "dark"
+      ? "bg-[#1e2a3a] text-white border border-gray-700 rounded-2xl rounded-bl-sm"
+      : "bg-white text-black border border-gray-200 rounded-2xl rounded-bl-sm",
 });
 
 export default function useThemeStyles() {

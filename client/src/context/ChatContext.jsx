@@ -12,6 +12,7 @@ export const ChatProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unSeenMessages, setUnSeenMessages] = useState({});
+  const [isTyping, setIsTyping] = useState(false);
 
   const { socket, token, user } = useAuth();
 
@@ -34,7 +35,7 @@ export const ChatProvider = ({ children }) => {
       const response = await axios.get(`/api/messages/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.data.succes) {
+      if (response.data.success) {
         setMessages(response.data.messages);
       }
     } catch (error) {
@@ -118,6 +119,8 @@ export const ChatProvider = ({ children }) => {
         setUnSeenMessages,
         getUsersMessages,
         markAsSeen,
+        isTyping,
+        setIsTyping,
       }}
     >
       {children}
