@@ -86,7 +86,6 @@ export const markMessageAsSeen = async (req, res) => {
       { senderId: id, receiverId: req.userId, seen: false },
       { seen: true }
     );
-
     res.json({ success: true });
   } catch (error) {
     console.log(error);

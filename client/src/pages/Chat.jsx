@@ -289,8 +289,9 @@ const Chat = () => {
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             placeholder="Type your message"
-            className={`flex-1 px-4 py-2 rounded-full ${styles.input} focus:outline-none`}
+            className={`flex-1 min-w-0 px-4 py-2 rounded-full ${styles.input} focus:outline-none transition-all duration-200`}
           />
+
           <motion.button
             type="submit"
             className="hidden lg:block ml-2 bg-blue-500 text-white rounded-full p-3 cursor-pointer"
