@@ -39,7 +39,7 @@ body {
 }
 
 [data-theme="dark"] {
-  --bg-color: #070a10;
+  --bg-color: #000;
   --text-color: #ffffff;
 }
 

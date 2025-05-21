@@ -105,14 +105,14 @@ const AccountOwnerShip = () => {
                 <p className="text-left text-lg font-semibold mb-2">
                   Account Deactivation
                 </p>
-                <p className="text-left mb-6 text-gray-600 dark:text-gray-300">
+                <p className="text-left mb-6">
                   Deactivating your account is temporary, and it means your
                   profile will be hidden on SnapLink until you reactivate it
                   through Accounts Center or by logging in to your account.
                 </p>
 
                 <label
-                  className="block mb-2 text-sm text-gray-700 dark:text-gray-300"
+                  className="block mb-2 text-sm"
                   htmlFor="deactivationReason"
                 >
                   Reason (optional)

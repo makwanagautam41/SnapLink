@@ -183,23 +183,16 @@ const ImageEditorModal = ({
     if (selected) applyPreset(selected);
   };
 
-  const isLight = theme === "light";
-  const bgMain = isLight ? "bg-white" : "bg-gray-900";
-  const bgSecondary = isLight ? "bg-gray-100" : "bg-gray-900";
-  const textColor = isLight ? "text-gray-900" : "text-gray-100";
-  const labelColor = isLight ? "text-gray-700" : "text-gray-300";
-  const borderColor = isLight ? "border-gray-300" : "border-gray-600";
-
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black bg-opacity-70 backdrop-blur-sm overflow-hidden">
       {/* Header */}
       <div
-        className={`flex justify-between items-center p-4 ${bgMain} border-b ${borderColor}`}
+        className={`flex justify-between items-center p-4 ${styles.bg} border-b`}
       >
         <button onClick={onClose}>
-          <Icon.Close size={24} className={textColor} />
+          <Icon.Close size={24} />
         </button>
-        <span className={`font-semibold text-lg ${textColor}`}>
+        <span className={`font-semibold text-lg`}>
           Edit {type === "image" ? "Image" : "Video"}
         </span>
         <button
@@ -244,14 +237,12 @@ const ImageEditorModal = ({
 
       {/* Filter Presets Dropdown */}
       <div
-        className={`${bgSecondary} p-4 flex items-center justify-between border-t ${borderColor}`}
+        className={`${styles.bg2} p-4 flex items-center justify-between border-t`}
       >
-        <label className={`text-sm font-medium ${labelColor}`}>
-          Select Preset
-        </label>
+        <label className={`text-sm font-medium`}>Select Preset</label>
         <select
           onChange={handlePresetChange}
-          className={`px-4 py-2 border rounded-md ${bgMain} ${textColor} ${borderColor}`}
+          className={`px-4 py-2 border rounded-md ${styles.bg}`}
         >
           <option value="">-- Select a Preset --</option>
           {FILTER_PRESETS.map((preset) => (
@@ -264,11 +255,11 @@ const ImageEditorModal = ({
 
       {/* Filters Sliders */}
       <div
-        className={`${bgSecondary} p-4 flex flex-col space-y-3 overflow-y-auto max-h-[300px]`}
+        className={`${styles.bg2} p-4 flex flex-col space-y-3 overflow-y-auto max-h-[300px]`}
       >
         {type === "image" && (
           <div className="flex items-center justify-between">
-            <label className={`text-sm font-medium ${labelColor}`}>Zoom</label>
+            <label className={`text-sm font-medium`}>Zoom</label>
             <input
               type="range"
               min={1}
@@ -287,9 +278,7 @@ const ImageEditorModal = ({
           ["Blur", blur, setBlur, 0, 5, 0.1],
         ].map(([label, val, setter, min, max, step]) => (
           <div key={label} className="flex items-center justify-between">
-            <label className={`text-sm font-medium ${labelColor}`}>
-              {label}
-            </label>
+            <label className={`text-sm font-medium `}>{label}</label>
             <input
               type="range"
               min={min}
@@ -304,7 +293,7 @@ const ImageEditorModal = ({
 
         {/* Sharpness (disabled) */}
         <div className="flex items-center justify-between">
-          <label className={`text-sm font-medium ${labelColor}`}>
+          <label className={`text-sm font-medium`}>
             Sharpness (coming soon)
           </label>
           <input

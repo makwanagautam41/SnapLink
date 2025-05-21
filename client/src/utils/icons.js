@@ -3,7 +3,6 @@ import {
   BiSearch,
   BiCompass,
   BiUser,
-  BiHeart,
   BiPlusCircle,
   BiX,
   BiLoader,
@@ -18,6 +17,7 @@ import {
 import { FiMessageSquare } from "react-icons/fi";
 
 import { PiFilmReel } from "react-icons/pi";
+import { CiHeart } from "react-icons/ci";
 
 import { IoCloseCircleSharp, IoCall } from "react-icons/io5";
 
@@ -88,7 +88,7 @@ export const Icon = {
   Chat: BsChatHeartFill,
   Image: FaRegImages,
 
-  Heart: BiHeart,
+  Heart: CiHeart,
   HeartOutline: FaRegHeart,
   HeartFilled: FaHeart,
   Plus: BiPlusCircle,

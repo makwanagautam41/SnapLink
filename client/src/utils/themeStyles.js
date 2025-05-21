@@ -1,26 +1,31 @@
 import { useTheme } from "../context/ThemeContext";
 
 const getThemeStyle = (theme) => ({
-  text: theme === "dark" ? "text-white" : "text-gray-800",
-  bg: theme === "dark" ? "bg-[#131c2f]" : "bg-white",
-  bg2: theme === "dark" ? "bg-[#131c2f]" : "bg-gray-200",
-  bg3: theme === "dark" ? "bg-[#131c2f]" : "bg-gray-100",
+  text: theme === "dark" ? "text-[#FAFAFA]" : "text-[#262626]",
+
+  bg: theme === "dark" ? "bg-[#0A0A0A]" : "bg-[#FFFFFF]",
+  bg2: theme === "dark" ? "bg-[#171717]" : "bg-[#D4D4D4]",
+  bg3: theme === "dark" ? "bg-[#262626]" : "bg-[#F5F5F5]",
+
   input:
     theme === "light"
-      ? "hover:bg-gray-200 bg-gray-200 hover:text-gray-900"
-      : "bg-gray-900 hover:text-white text-white",
-  hover:
+      ? "hover:bg-[#E5E5E5] bg-[#E5E5E5] hover:text-[#0A0A0A]"
+      : "bg-[#171717] hover:text-[#FAFAFA] text-[#FAFAFA]",
+  input2:
     theme === "light"
-      ? "hover:bg-gray-200 hover:text-gray-900"
-      : "hover:bg-gray-900 hover:text-white",
-  active: theme === "light" ? "bg-gray-200" : "bg-gray-900",
+      ? "hover:bg-[#E5E5E5] bg-[#E5E5E5] hover:text-[#0A0A0A] border-gray-300 placeholder-gray-500"
+      : "bg-[#171717] hover:text-[#FAFAFA] text-[#FAFAFA] border-gray-600 placeholder-gray-300",
+
+  hover: theme === "light" ? "hover:bg-[#E5E5E5]" : "hover:bg-[#171717]",
+
+  active: theme === "light" ? "bg-[#E5E5E5]" : "bg-[#404040]",
 
   messageBubble: (isSender) =>
     isSender
-      ? "bg-black text-white rounded-2xl rounded-br-sm"
+      ? "bg-[#000000] text-[#FAFAFA] rounded-2xl rounded-br-sm"
       : theme === "dark"
-      ? "bg-[#1e2a3a] text-white border border-gray-700 rounded-2xl rounded-bl-sm"
-      : "bg-white text-black border border-gray-200 rounded-2xl rounded-bl-sm",
+      ? "bg-[#171717] text-[#FAFAFA] border border-[#404040] rounded-2xl rounded-bl-sm"
+      : "bg-[#FFFFFF] text-[#0A0A0A] border border-[#E5E5E5] rounded-2xl rounded-bl-sm",
 });
 
 export default function useThemeStyles() {

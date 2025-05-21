@@ -180,7 +180,7 @@ const Feed = () => {
         <div className="flex items-center">
           <button
             onClick={scrollLeft}
-            className="hidden md:flex absolute left-0 z-10 cursor-pointer bg-white text-gray-700 p-1 rounded-full shadow-md hover:bg-gray-100"
+            className="hidden md:flex absolute left-0 z-10 cursor-pointer p-1 rounded-full shadow-md hover:bg-gray-100"
             aria-label="Scroll left"
           >
             <Icon.ArrowBack size={20} />
@@ -192,7 +192,7 @@ const Feed = () => {
 
           <button
             onClick={scrollRight}
-            className="hidden md:flex absolute right-0 z-10 cursor-pointer bg-white text-gray-700 p-1 rounded-full shadow-md hover:bg-gray-100"
+            className="hidden md:flex absolute right-0 z-10 cursor-pointer p-1 rounded-full shadow-md hover:bg-gray-100"
             aria-label="Scroll right"
           >
             <Icon.ArrowRight size={20} />
@@ -213,7 +213,7 @@ const Feed = () => {
                       <img
                         src={post.postedBy?.profileImg}
                         alt={post.postedBy?.username}
-                        className="w-8 h-8 rounded-full bg-gray-300 object-cover"
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                       <div className="ml-3">
                         <p className="font-medium text-sm">
@@ -223,7 +223,7 @@ const Feed = () => {
                     </div>
                   </Link>
                 </div>
-                <div className="bg-gray-100 aspect-square w-full flex items-center justify-center">
+                <div className="aspect-square w-full flex items-center justify-center">
                   {post.images && post.images.length > 0 ? (
                     <img
                       src={post.images[0]?.url}
@@ -265,11 +265,9 @@ const Feed = () => {
 
                 {activeCommentPost === post._id && (
                   <Modal onClose={() => setActiveCommentPost(null)}>
-                    <h2 className="text-md mt-2">Comments</h2>
+                    <h2 className="text-md my-4 border-b">Comments</h2>
                     <div
-                      className={`relative h-[calc(100vh-2rem)] p-4 md:h-auto ${
-                        theme === "dark" ? "bg-gray-800 text-white" : "bg-white"
-                      }`}
+                      className={`relative h-[calc(100vh-2rem)] p-4 md:h-auto ${styles.bg}`}
                     >
                       <div className="h-[calc(100vh-10rem)] md:max-h-[400px] overflow-y-auto mb-4">
                         {post.comments?.length > 0 ? (
@@ -333,7 +331,7 @@ const Feed = () => {
                             type="button"
                             aria-label="emoji-picker"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                            className="focus:outline-none"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -411,7 +409,7 @@ const Feed = () => {
                       <img
                         src={post.postedBy?.profileImg}
                         alt={post.postedBy?.username}
-                        className="w-8 h-8 rounded-full bg-gray-300 object-cover"
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                       <div className="ml-3">
                         <p className="font-medium text-sm">
@@ -421,7 +419,7 @@ const Feed = () => {
                     </div>
                   </Link>
                 </div>
-                <div className="bg-gray-100 aspect-square w-full flex items-center justify-center">
+                <div className="aspect-square w-full flex items-center justify-center">
                   {post.images && post.images.length > 0 ? (
                     <img
                       src={post.images[0]?.url}
@@ -464,9 +462,7 @@ const Feed = () => {
                 {activeCommentPost === post._id && (
                   <Modal onClose={() => setActiveCommentPost(null)}>
                     <div
-                      className={`relative h-[calc(100vh-2rem)] md:h-auto ${
-                        theme === "dark" ? "bg-gray-800 text-white" : "bg-white"
-                      }`}
+                      className={`relative h-[calc(100vh-2rem)] md:h-auto ${styles.bg}`}
                     >
                       <h2 className="text-xl font-semibold mb-4 md:hidden px-4">
                         Comments

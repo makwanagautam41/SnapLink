@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import useUserSearch from "../hooks/useUserSearch";
 import Explore from "./Explore";
 import { useTheme } from "../context/ThemeContext";
+import useThemeStyles from "../utils/themeStyles.js";
 
 const SearchAndExplore = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +20,7 @@ const SearchAndExplore = () => {
     searchMenuOpen
   );
   const { theme } = useTheme();
+  const styles = useThemeStyles();
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -49,11 +51,7 @@ const SearchAndExplore = () => {
             type="text"
             placeholder="Search users..."
             className={`w-full px-4 py-2 pr-12 rounded-lg shadow-sm border focus:outline-none transition
-    ${
-      theme === "light"
-        ? "bg-gray-100 text-gray-700 border-gray-300 placeholder-gray-500"
-        : "bg-gray-900 text-white border-gray-600 placeholder-gray-300"
-    }
+    ${styles.input2}
   `}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -62,7 +60,7 @@ const SearchAndExplore = () => {
 
           {searchMenuOpen && (
             <button
-              className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800"
+              className="absolute right-1 top-1/2 -translate-y-1/2"
               onClick={() => {
                 setSearchQuery("");
                 setSearchMenuOpen(false);

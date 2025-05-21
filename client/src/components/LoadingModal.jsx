@@ -1,9 +1,11 @@
 import React from "react";
 import { Icon } from "../utils/icons";
 import { useTheme } from "../context/ThemeContext";
+import useThemeStyles from "../utils/themeStyles";
 
 const LoadingModal = ({ text }) => {
   const { theme } = useTheme();
+  const styles = useThemeStyles();
 
   return (
     <div
@@ -12,28 +14,12 @@ const LoadingModal = ({ text }) => {
       }`}
     >
       <div
-        className={`rounded-xl shadow-xl w-full max-w-xs overflow-hidden animate-fade-in ${
-          theme === "light" ? "bg-white" : "bg-gray-800"
-        }`}
+        className={`rounded-xl shadow-xl w-full max-w-xs overflow-hidden animate-fade-in ${styles.bg2}`}
       >
         <div className="flex flex-col items-center p-6">
-          <Icon.Loader
-            className={`animate-spin w-6 h-6 ${
-              theme === "light" ? "text-black" : "text-white"
-            }`}
-          />
-          <h3
-            className={`text-lg font-medium mb-1 ${
-              theme === "light" ? "text-gray-900" : "text-white"
-            }`}
-          >
-            {text}
-          </h3>
-          <p
-            className={`text-sm text-center ${
-              theme === "light" ? "text-gray-500" : "text-gray-400"
-            }`}
-          >
+          <Icon.Loader className={`animate-spin w-6 h-6 ${styles.text}`} />
+          <h3 className={`text-lg font-medium mb-1 ${styles.text}`}>{text}</h3>
+          <p className={`text-sm text-center ${styles.text}`}>
             Please wait while we process your request...
           </p>
         </div>
