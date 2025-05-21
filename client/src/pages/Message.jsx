@@ -10,8 +10,14 @@ const Message = ({ isVisible }) => {
   const styles = useThemeStyles();
   const { user, onlineUsers } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const { users, unSeenMessages, setSelectedUser, getUsersMessages, isTyping } =
-    useChat();
+  const {
+    users,
+    unSeenMessages,
+    setSelectedUser,
+    getUsersMessages,
+    isTyping,
+    deleteChat,
+  } = useChat();
 
   useEffect(() => {
     getUsersMessages();
@@ -27,6 +33,8 @@ const Message = ({ isVisible }) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+
+  const handleChatDelete = (otherUserId) => {};
 
   return (
     <div className="flex h-screen">

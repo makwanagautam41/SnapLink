@@ -49,7 +49,6 @@ import {
   FaXTwitter,
   FaCirclePlus,
   FaRegImages,
-  FaLink,
 } from "react-icons/fa6";
 
 import {
@@ -88,7 +87,6 @@ export const Icon = {
   About: FaInfoCircle,
   Chat: BsChatHeartFill,
   Image: FaRegImages,
-  Link: FaLink,
 
   Heart: BiHeart,
   HeartOutline: FaRegHeart,

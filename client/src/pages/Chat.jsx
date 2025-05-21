@@ -25,6 +25,11 @@ const Chat = () => {
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [optionModalFor, setOptionModalFor] = useState(null);
+  const [showSelectedSendImage, setShowSelectedSendImage] = useState(false);
+  const [selectedImages, setSelectedImages] = useState("");
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const {
     messages,
@@ -34,6 +39,7 @@ const Chat = () => {
     sendMessage,
     users,
     isTyping,
+    deleteMessage,
   } = useChat();
 
   useEffect(() => {
@@ -52,18 +58,44 @@ const Chat = () => {
     }
   }, [messages]);
 
-  const handleSendMessage = (e) => {
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedImages((prev) => [...prev, ...files]);
+  };
+
+  const removeSelectedImage = (index) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (messageText.trim() && selectedUser) {
-      sendMessage(messageText);
-      setMessageText("");
+    setLoading(true);
+    try {
+      if ((messageText.trim() || selectedImages.length > 0) && selectedUser) {
+        await sendMessage(messageText, selectedImages);
+        setMessageText("");
+        setSelectedImages([]);
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
     }
+    setLoading(false);
   };
 
   const formatMessageTime = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const handleDelete = async (msgId) => {
+    try {
+      setOptionModalFor(null);
+      await deleteMessage(msgId);
+      getMessages(selectedUser._id);
+    } catch (error) {
+      console.error("Failed to delete message", error);
+    }
   };
 
   if (!selectedUser) {
@@ -150,18 +182,62 @@ const Chat = () => {
                   key={i}
                   className={`flex ${
                     isSender ? "justify-end" : "justify-start"
-                  }`}
+                  } group items-center relative`}
                 >
+                  {isSender && (
+                    <Icon.DotsHorizontal
+                      onClick={() => setOptionModalFor(msg._id)}
+                      className="mr-1 hidden group-hover:block text-gray-500 cursor-pointer"
+                    />
+                  )}
                   <div
                     className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
                       isSender
                     )}`}
                   >
                     {msg.text}
+                    {msg.images.map((image, index) => {
+                      return (
+                        <img
+                          onClick={() => setShowSelectedSendImage(image.url)}
+                          key={index}
+                          src={image.url}
+                          alt="chat-image"
+                          className="h-20 w-20 mt-2 rounded-lg cursor-pointer"
+                        />
+                      );
+                    })}
                     <div className="text-[10px] text-gray-400 text-right mt-1">
                       {formatMessageTime(msg.createdAt)}
                     </div>
                   </div>
+                  {optionModalFor === msg._id && (
+                    <Modal onClose={() => setOptionModalFor(null)}>
+                      <div className="w-full rounded-xl shadow-lg overflow-hidden">
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <h4 className="font-semibold text-lg">Options</h4>
+                        </div>
+
+                        <button className="w-full cursor-pointer py-3 px-4 text-center text-red-500 font-medium border-b border-gray-200 transition">
+                          Report
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(msg._id)}
+                          className="w-full cursor-pointer py-3 px-4 text-center text-red-500 font-medium border-b border-gray-200 transition"
+                        >
+                          Delete
+                        </button>
+
+                        <button
+                          onClick={() => setOptionModalFor(null)}
+                          className="w-full cursor-pointer py-3 px-4 text-center font-medium transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </Modal>
+                  )}
                 </div>
               );
             })
@@ -275,15 +351,62 @@ const Chat = () => {
           </Modal>
         )}
 
+        {showSelectedSendImage && (
+          <Modal onClose={() => setShowSelectedSendImage(false)}>
+            <div className="flex justify-center items-center">
+              <img
+                src={showSelectedSendImage}
+                alt="Selected"
+                className="max-h-[100vh]"
+              />
+            </div>
+          </Modal>
+        )}
+
+        <div className="flex items-center gap-2 px-4">
+          {selectedImages.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto">
+              {selectedImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <Icon.CloseCircle
+                    size={20}
+                    className="text-2xl absolute top-0 right-0 cursor-pointer z-10"
+                    onClick={() => removeSelectedImage(index)}
+                  />
+                  <img
+                    onClick={() =>
+                      setShowSelectedSendImage(URL.createObjectURL(image))
+                    }
+                    src={URL.createObjectURL(image)}
+                    alt={`Selected ${index + 1}`}
+                    className="h-10 w-10 object-cover rounded"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Message Input */}
         <form
           onSubmit={handleSendMessage}
           className={`p-4 border-t border-gray-200 dark:border-gray-800 ${styles.bg} flex items-center`}
         >
           <div className="flex items-center gap-2">
-            <Icon.Image className="text-2xl" />
-            <Icon.Link className="text-2xl" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              multiple
+              accept="image/*"
+              className="hidden"
+            />
+            <Icon.Image
+              className="text-2xl cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            />
           </div>
+
           <input
             type="text"
             value={messageText}
@@ -294,30 +417,34 @@ const Chat = () => {
 
           <motion.button
             type="submit"
-            className="hidden lg:block ml-2 bg-blue-500 text-white rounded-full p-3 cursor-pointer"
+            className="ml-2 bg-blue-500 text-white rounded-full p-2 cursor-pointer"
             whileHover={{ rotate: 45, scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            <svg
-              className="button__icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M14.2199 21.9352C13.0399 21.9352 11.3699 21.1052 10.0499 17.1352L9.32988 14.9752L7.16988 14.2552C3.20988 12.9352 2.37988 11.2652 2.37988 10.0852C2.37988 8.91525 3.20988 7.23525 7.16988 5.90525L15.6599 3.07525C17.7799 2.36525 19.5499 2.57525 20.6399 3.65525C21.7299 4.73525 21.9399 6.51525 21.2299 8.63525L18.3999 17.1252C17.0699 21.1052 15.3999 21.9352 14.2199 21.9352ZM7.63988 7.33525C4.85988 8.26525 3.86988 9.36525 3.86988 10.0852C3.86988 10.8052 4.85988 11.9052 7.63988 12.8252L10.1599 13.6652C10.3799 13.7352 10.5599 13.9152 10.6299 14.1352L11.4699 16.6552C12.3899 19.4352 13.4999 20.4252 14.2199 20.4252C14.9399 20.4252 16.0399 19.4352 16.9699 16.6552L19.7999 8.16525C20.3099 6.62525 20.2199 5.36525 19.5699 4.71525C18.9199 4.06525 17.6599 3.98525 16.1299 4.49525L7.63988 7.33525Z"
-                fill="#fff"
-              ></path>
-              <path
-                d="M10.11 14.7052C9.92005 14.7052 9.73005 14.6352 9.58005 14.4852C9.29005 14.1952 9.29005 13.7152 9.58005 13.4252L13.16 9.83518C13.45 9.54518 13.93 9.54518 14.22 9.83518C14.51 10.1252 14.51 10.6052 14.22 10.8952L10.64 14.4852C10.5 14.6352 10.3 14.7052 10.11 14.7052Z"
-                fill="#fff"
-              ></path>
-            </svg>
+            {loading ? (
+              <Icon.Loader className="animate-spin w-5 h-5" />
+            ) : (
+              <svg
+                className="button__icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M14.2199 21.9352C13.0399 21.9352 11.3699 21.1052 10.0499 17.1352L9.32988 14.9752L7.16988 14.2552C3.20988 12.9352 2.37988 11.2652 2.37988 10.0852C2.37988 8.91525 3.20988 7.23525 7.16988 5.90525L15.6599 3.07525C17.7799 2.36525 19.5499 2.57525 20.6399 3.65525C21.7299 4.73525 21.9399 6.51525 21.2299 8.63525L18.3999 17.1252C17.0699 21.1052 15.3999 21.9352 14.2199 21.9352ZM7.63988 7.33525C4.85988 8.26525 3.86988 9.36525 3.86988 10.0852C3.86988 10.8052 4.85988 11.9052 7.63988 12.8252L10.1599 13.6652C10.3799 13.7352 10.5599 13.9152 10.6299 14.1352L11.4699 16.6552C12.3899 19.4352 13.4999 20.4252 14.2199 20.4252C14.9399 20.4252 16.0399 19.4352 16.9699 16.6552L19.7999 8.16525C20.3099 6.62525 20.2199 5.36525 19.5699 4.71525C18.9199 4.06525 17.6599 3.98525 16.1299 4.49525L7.63988 7.33525Z"
+                  fill="#fff"
+                ></path>
+                <path
+                  d="M10.11 14.7052C9.92005 14.7052 9.73005 14.6352 9.58005 14.4852C9.29005 14.1952 9.29005 13.7152 9.58005 13.4252L13.16 9.83518C13.45 9.54518 13.93 9.54518 14.22 9.83518C14.51 10.1252 14.51 10.6052 14.22 10.8952L10.64 14.4852C10.5 14.6352 10.3 14.7052 10.11 14.7052Z"
+                  fill="#fff"
+                ></path>
+              </svg>
+            )}
           </motion.button>
         </form>
       </div>

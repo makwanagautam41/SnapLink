@@ -43,15 +43,27 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
-  const sendMessage = async (text) => {
+  const sendMessage = async (text, images = []) => {
     try {
+      const formData = new FormData();
+      formData.append("text", text);
+
+      images.forEach((image, index) => {
+        formData.append("images", image);
+      });
+
       const response = await axios.post(
         `/api/messages/send/${selectedUser._id}`,
-        { text },
+        formData,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
+
+      console.log(response.data);
       if (response.data.success) {
         setMessages((prev) => [...prev, response.data.newMessage]);
         socket.emit("sendMessage", response.data.newMessage);
@@ -77,6 +89,7 @@ export const ChatProvider = ({ children }) => {
     if (!socket) return;
 
     socket.off("newMessage");
+    socket.off("messageDeleted");
 
     socket.on("newMessage", (newMessage) => {
       if (selectedUser && newMessage.senderId === selectedUser._id) {
@@ -92,12 +105,41 @@ export const ChatProvider = ({ children }) => {
         }));
       }
     });
+
+    socket.on("messageDeleted", (deletedMessageId) => {
+      setMessages((prev) => prev.filter((msg) => msg._id !== deletedMessageId));
+    });
+  };
+
+  const deleteMessage = async (msgId) => {
+    try {
+      await axios.delete(`/api/messages/${msgId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessages((prev) => prev.filter((msg) => msg._id !== msgId));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const deleteChat = async (otherUserId) => {
+    try {
+      await axios.delete(`/api/messages/delete-chat/${otherUserId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessages([]);
+    } catch (error) {
+      console.log("Error deleting chat:", error.message);
+    }
   };
 
   useEffect(() => {
     if (socket) subscribeToMessages();
     return () => {
-      if (socket) socket.off("newMessage");
+      if (socket) {
+        socket.off("newMessage");
+        socket.off("messageDeleted");
+      }
     };
   }, [socket, selectedUser]);
 
@@ -121,6 +163,8 @@ export const ChatProvider = ({ children }) => {
         markAsSeen,
         isTyping,
         setIsTyping,
+        deleteMessage,
+        deleteChat,
       }}
     >
       {children}
