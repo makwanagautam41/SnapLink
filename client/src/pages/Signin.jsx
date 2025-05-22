@@ -10,7 +10,7 @@ const Signin = () => {
   const navigate = useNavigate();
   const styles = useThemeStyles();
   const location = useLocation();
-  const [input, setInput] = useState({ email: "", password: "" });
+  const [input, setInput] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -61,14 +61,18 @@ const Signin = () => {
           </label>
           <input
             type="text"
-            name="email"
-            id="email"
-            placeholder="Email or Username"
-            value={input.email}
+            name="identifier"
+            id="identifier"
+            placeholder="Enter your email or username"
+            value={input.identifier}
             onChange={handleChange}
             required
             className={inputClass}
           />
+
+          <p className="text-xs text-gray-500 mt-1">
+            You can sign in with either your email address or username
+          </p>
         </div>
         <div className="space-y-1 text-sm relative">
           <label htmlFor="password" className="block dark:text-gray-600">

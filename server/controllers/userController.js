@@ -64,9 +64,9 @@ const signup = async (req, res) => {
 
 const signin = async (req, res) => {
   try {
-    const { email, username, password } = req.body || {};
+    const { identifier, password } = req.body || {};
 
-    if (!password || (!email && !username)) {
+    if (!password || !identifier) {
       return res.status(400).json({
         success: false,
         message: "Email/username and password required",
@@ -74,7 +74,9 @@ const signin = async (req, res) => {
     }
 
     const user = await userModel
-      .findOne({ $or: [{ email }, { username }] })
+      .findOne({
+        $or: [{ email: identifier }, { username: identifier }],
+      })
       .lean();
     if (!user)
       return res
