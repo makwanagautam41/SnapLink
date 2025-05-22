@@ -25,7 +25,7 @@ const ChatProfile = () => {
   if (!selectedUser) return null;
 
   return (
-    <div className="h-screen w-full sm:max-w-md mx-auto bg-white flex flex-col">
+    <div className="h-screen w-full sm:max-w-md mx-auto flex flex-col">
       <PostTopBar title={selectedUser.name} />
 
       <div className="flex-1 overflow-y-auto px-4 pb-6">
