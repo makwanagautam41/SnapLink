@@ -69,6 +69,27 @@ io.on("connection", async (socket) => {
 
   io.emit("getOnlineUsers", Object.values(onlineUsersData));
 
+  // Add this after the existing socket connection code
+  socket.on("user-typing", ({ id }) => {
+    const receiverSocketId = userSocketMap[id];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("user-typing", {
+        userId: userId,
+        isTyping: true,
+      });
+    }
+  });
+
+  socket.on("user-stop-typing", ({ id }) => {
+    const receiverSocketId = userSocketMap[id];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("user-typing", {
+        userId: userId,
+        isTyping: false,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("User Disconnected :", userId);
     delete userSocketMap[userId];

@@ -37,6 +37,7 @@ import ReactivateAccount from "./pages/ReactivateAccount";
 import CancelAccountDeletion from "./pages/CancelAccountDeletion";
 import Message from "./pages/Message.jsx";
 import Chat from "./pages/Chat.jsx";
+import ChatProfile from "./pages/ChatProfile.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -205,6 +206,22 @@ const App = () => {
                 </div>
                 <div className="w-full">
                   <Chat />
+                </div>
+              </div>
+            </ProtectedPage>
+          }
+        />
+        <Route
+          path="/message/:username/chat/profile"
+          element={
+            <ProtectedPage>
+              <Sidebar />
+              <div className="flex lg:ml-64 z-10 w-full">
+                <div className="hidden lg:block">
+                  <Message />
+                </div>
+                <div className="w-full">
+                  <ChatProfile />
                 </div>
               </div>
             </ProtectedPage>

@@ -48,7 +48,7 @@ const UserProfileDetails = ({
             </Link>
             <Link
               to="/settings"
-              className={`hidden md:inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition ${styles.bg2}`}
+              className={`hidden sm:inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg transition ${styles.bg2}`}
             >
               <Icon.Setting size={20} />
             </Link>

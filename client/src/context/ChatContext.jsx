@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const backEndUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backEndUrl;
@@ -8,11 +9,12 @@ axios.defaults.baseURL = backEndUrl;
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
+  const [chatImages, setChatImages] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unSeenMessages, setUnSeenMessages] = useState({});
-  const [isTyping, setIsTyping] = useState(false);
 
   const { socket, token, user } = useAuth();
 
@@ -37,6 +39,20 @@ export const ChatProvider = ({ children }) => {
       });
       if (response.data.success) {
         setMessages(response.data.messages);
+        getChatImages(userId);
+      }
+    } catch (error) {
+      console.log("Error fetching messages:", error.message);
+    }
+  };
+
+  const getChatImages = async (userId) => {
+    try {
+      const response = await axios.get(`/api/messages/chat-images/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setChatImages(response.data.chatImages);
       }
     } catch (error) {
       console.log("Error fetching messages:", error.message);
@@ -67,6 +83,7 @@ export const ChatProvider = ({ children }) => {
       if (response.data.success) {
         setMessages((prev) => [...prev, response.data.newMessage]);
         socket.emit("sendMessage", response.data.newMessage);
+        getChatImages(selectedUser._id);
       } else {
         console.log(response.data.message);
       }
@@ -150,6 +167,7 @@ export const ChatProvider = ({ children }) => {
   return (
     <ChatContext.Provider
       value={{
+        navigate,
         axios,
         messages,
         users,
@@ -161,10 +179,10 @@ export const ChatProvider = ({ children }) => {
         setUnSeenMessages,
         getUsersMessages,
         markAsSeen,
-        isTyping,
-        setIsTyping,
         deleteMessage,
         deleteChat,
+        chatImages,
+        getChatImages,
       }}
     >
       {children}

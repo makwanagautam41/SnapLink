@@ -3,6 +3,7 @@ import authUser from "../middleware/auth.js";
 import {
   getMessageUsers,
   getMessages,
+  getChatImages,
   markMessageAsSeen,
   sendMessage,
   deleteMessage,
@@ -15,6 +16,7 @@ const messageRouter = express.Router();
 
 messageRouter.get("/users-messages", authUser, getMessageUsers);
 messageRouter.get("/:id", authUser, getMessages);
+messageRouter.get("/chat-images/:id", authUser, getChatImages);
 messageRouter.put("/mark/:id", authUser, markMessageAsSeen);
 messageRouter.post(
   "/send/:id",

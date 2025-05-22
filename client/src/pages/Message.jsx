@@ -15,7 +15,6 @@ const Message = ({ isVisible }) => {
     unSeenMessages,
     setSelectedUser,
     getUsersMessages,
-    isTyping,
     deleteChat,
   } = useChat();
 
@@ -67,9 +66,9 @@ const Message = ({ isVisible }) => {
           </div>
           <div className="flex -space-x-2 overflow-x-auto">
             {onlineUsers.map((user, i) => (
-              <Link to={`/message/${user.username}/chat`}>
+              <Link to={`/message/${user.username}/chat`} key={user._id}>
                 <img
-                  key={i}
+                  key={user._id}
                   src={user.profileImg}
                   alt={user.name}
                   className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800"
@@ -124,9 +123,7 @@ const Message = ({ isVisible }) => {
                     <div>
                       <div className="font-semibold">{chatUser.name}</div>
                       <div className="text-xs truncate text-gray-500 max-w-[150px]">
-                        {isTyping
-                          ? "Typing..."
-                          : chatUser.lastMessage || "No messages yet"}
+                        {chatUser.lastMessage || "No messages yet"}
                       </div>
                     </div>
                   </div>

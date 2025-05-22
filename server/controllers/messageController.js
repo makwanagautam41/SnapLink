@@ -81,10 +81,39 @@ export const getMessages = async (req, res) => {
       { seen: true }
     );
 
-    res.json({ success: true, messages });
+    const imageMessages = messages
+      .filter((msg) => Array.isArray(msg.images) && msg.images.length > 0)
+      .flatMap((msg) => msg.images);
+
+    res.json({ success: true, messages, chatImages: imageMessages });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
+  }
+};
+
+export const getChatImages = async (req, res) => {
+  try {
+    const { id: selectedUserId } = req.params;
+    const myId = req.userId;
+
+    const imageMessages = await messageModal.find(
+      {
+        $or: [
+          { senderId: myId, receiverId: selectedUserId },
+          { senderId: selectedUserId, receiverId: myId },
+        ],
+        images: { $exists: true, $ne: [] },
+      },
+      { images: 1, _id: 0 }
+    );
+
+    const chatImages = imageMessages.flatMap((msg) => msg.images);
+
+    res.json({ success: true, chatImages });
+  } catch (error) {
+    console.error("Error fetching chat images:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

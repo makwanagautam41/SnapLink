@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
 import Modal from "../components/Modal";
 import { Icon } from "../utils/icons";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Chat = () => {
   const bounceTransition = {
@@ -19,17 +19,19 @@ const Chat = () => {
     },
   };
   const { username } = useParams();
-  const { user, onlineUsers } = useAuth();
+  const { user, onlineUsers, socket } = useAuth();
   const styles = useThemeStyles();
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
   const [messageText, setMessageText] = useState("");
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [optionModalFor, setOptionModalFor] = useState(null);
-  const [showSelectedSendImage, setShowSelectedSendImage] = useState(false);
+  const [showSelectedSendImage, setShowSelectedSendImage] = useState("");
   const [selectedImages, setSelectedImages] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const {
     messages,
@@ -38,8 +40,8 @@ const Chat = () => {
     getMessages,
     sendMessage,
     users,
-    isTyping,
     deleteMessage,
+    chatImages,
   } = useChat();
 
   useEffect(() => {
@@ -58,13 +60,46 @@ const Chat = () => {
     }
   }, [messages]);
 
-  const handleImageSelect = (e) => {
-    const files = Array.from(e.target.files);
-    setSelectedImages((prev) => [...prev, ...files]);
-  };
+  useEffect(() => {
+    if (socket) {
+      socket.on("user-typing", ({ userId, isTyping }) => {
+        if (selectedUser && userId === selectedUser._id) {
+          setIsTyping(isTyping);
+        }
+      });
+    }
 
-  const removeSelectedImage = (index) => {
-    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    return () => {
+      if (socket) {
+        socket.off("user-typing");
+      }
+    };
+  }, [socket, selectedUser]);
+
+  const handleInputChange = (e) => {
+    const newValue = e.target.value;
+    setMessageText(newValue);
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Emit typing event
+    if (selectedUser && newValue.trim()) {
+      socket.emit("user-typing", {
+        id: selectedUser._id,
+      });
+    }
+
+    // Set timeout to stop typing
+    typingTimeoutRef.current = setTimeout(() => {
+      if (selectedUser) {
+        socket.emit("user-stop-typing", {
+          id: selectedUser._id,
+        });
+      }
+    }, 2000);
   };
 
   const handleSendMessage = async (e) => {
@@ -80,6 +115,15 @@ const Chat = () => {
       console.error("Failed to send message:", error);
     }
     setLoading(false);
+  };
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedImages((prev) => [...prev, ...files]);
+  };
+
+  const removeSelectedImage = (index) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const formatMessageTime = (timestamp) => {
@@ -129,7 +173,7 @@ const Chat = () => {
             <div
               onClick={() => {
                 if (window.innerWidth < 1024) {
-                  setShowDetailsModal(true);
+                  navigate(`/message/${username}/chat/profile`);
                 }
               }}
               className="flex items-center cursor-pointer"
@@ -191,7 +235,7 @@ const Chat = () => {
                     />
                   )}
                   <div
-                    className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
+                    className={`max-w-[75%] break-words px-4 py-2 text-sm shadow ${styles.messageBubble(
                       isSender
                     )}`}
                   >
@@ -245,111 +289,62 @@ const Chat = () => {
             <div className="text-center text-gray-400">No messages yet</div>
           )}
           <div ref={messagesEndRef} />
-          {isTyping && selectedUser && (
-            <div className="flex justify-start">
-              <div
-                className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
-                  false
-                )}`}
+          <AnimatePresence>
+            {isTyping && selectedUser && (
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20,
+                  duration: 0.3,
+                }}
+                className="flex justify-start"
               >
-                <div className="flex items-center space-x-1 h-4">
-                  <motion.span
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: ["100%", "-100%"] }}
-                    transition={{
-                      ...bounceTransition.y,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      delay: 0,
-                    }}
-                  />
-                  <motion.span
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: ["100%", "-100%"] }}
-                    transition={{
-                      ...bounceTransition.y,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      delay: 0.2,
-                    }}
-                  />
-                  <motion.span
-                    className="w-2 h-2 rounded-full bg-gray-400"
-                    animate={{ y: ["100%", "-100%"] }}
-                    transition={{
-                      ...bounceTransition.y,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      delay: 0.4,
-                    }}
-                  />
+                <div
+                  className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
+                    false
+                  )}`}
+                >
+                  <div className="flex items-center space-x-1 h-4">
+                    <motion.span
+                      className="w-2 h-2 rounded-full bg-gray-400"
+                      animate={{ y: ["100%", "-100%"] }}
+                      transition={{
+                        ...bounceTransition.y,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        delay: 0,
+                      }}
+                    />
+                    <motion.span
+                      className="w-2 h-2 rounded-full bg-gray-400"
+                      animate={{ y: ["100%", "-100%"] }}
+                      transition={{
+                        ...bounceTransition.y,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        delay: 0.2,
+                      }}
+                    />
+                    <motion.span
+                      className="w-2 h-2 rounded-full bg-gray-400"
+                      animate={{ y: ["100%", "-100%"] }}
+                      transition={{
+                        ...bounceTransition.y,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        delay: 0.4,
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
-        {showDetailsModal && (
-          <Modal onClose={() => setShowDetailsModal(false)}>
-            <div className="w-full h-screen sm:max-w-md sm:h-auto sm:rounded-lg">
-              <div className="flex flex-col items-center mt-4">
-                <img
-                  src={selectedUser.profileImg}
-                  alt={selectedUser.name}
-                  className="w-20 h-20 rounded-full shadow-md"
-                />
-                <h2 className="mt-2 text-lg font-semibold">
-                  {selectedUser.name}
-                </h2>
-                <div className="text-sm text-gray-500 mt-1">
-                  @{selectedUser.username}
-                </div>
-              </div>
-              <div className="flex space-x-6 justify-center items-center mt-5">
-                <div className="flex flex-col p-4 items-center">
-                  <Icon.User className="text-2xl" />
-                  <p className="text-sm">Profile</p>
-                </div>
-                <div className="flex flex-col p-2 items-center">
-                  <Icon.Search className="text-2xl" />
-                  <p className="text-sm">Search</p>
-                </div>
-                <div className="flex flex-col p-2 items-center">
-                  <Icon.Mute className="text-2xl" />
-                  <p className="text-sm">Mute</p>
-                </div>
-                <div className="flex flex-col p-2 items-center">
-                  <Icon.DotsHorizontal className="text-2xl" />
-                  <p className="text-sm">Options</p>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={selectedUser.profileImg}
-                    alt={selectedUser.name}
-                    className="w-9 h-9 rounded-full"
-                  />
-                  <div className="flex flex-col items-start">
-                    <p className="text-sm font-semibold">Theme</p>
-                    <p className="text-xs text-gray-400">Default</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-4">
-                  <Icon.Clock size={35} className="text-gray-400" />
-                  <div className="flex flex-col items-start">
-                    <p className="text-sm font-semibold">Theme</p>
-                    <p className="text-xs text-gray-400">Default</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-4">
-                  <Icon.Lock size={35} className="text-gray-400" />
-                  <p>Privacy & safety</p>
-                </div>
-              </div>
-            </div>
-          </Modal>
-        )}
 
         {showSelectedSendImage && (
           <Modal onClose={() => setShowSelectedSendImage(false)}>
@@ -410,7 +405,7 @@ const Chat = () => {
           <input
             type="text"
             value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Type your message"
             className={`flex-1 min-w-0 px-4 py-2 rounded-full ${styles.input} focus:outline-none transition-all duration-200`}
           />
@@ -450,30 +445,54 @@ const Chat = () => {
       </div>
       {/* Right Sidebar (User Info & Shared Files) */}
       <div
-        className={`hidden lg:flex flex-col w-80 ${styles.bg} border-l border-gray-200 dark:border-gray-800 p-4`}
+        className={`hidden lg:flex flex-col w-80 ${styles.bg} border-l border-gray-200 dark:border-gray-800 h-[calc(100vh-0px)]`}
       >
         {selectedUser && (
-          <>
-            <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex flex-col items-center p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
               <img
                 src={selectedUser.profileImg}
                 alt={selectedUser.name}
-                className="w-20 h-20 rounded-full shadow-md"
+                className="w-20 h-20 rounded-full shadow-md object-cover"
               />
-              <h2 className="mt-2 text-lg font-semibold">
+              <h2 className="mt-2 text-lg font-semibold text-center">
                 {selectedUser.name}
               </h2>
               <div className="text-sm text-gray-500 mt-1">
                 @{selectedUser.username}
               </div>
             </div>
-            {selectedUser.bio && (
-              <div className="mb-6">
-                <div className="font-semibold mb-2">About</div>
-                <p className="text-sm text-gray-600">{selectedUser.bio}</p>
+
+            <div className="flex-1 overflow-y-auto">
+              <h3
+                className={`text-sm font-semibold mb-3 sticky top-0 ${styles.bg} py-2`}
+              >
+                Shared Media
+              </h3>
+
+              <div className="p-4">
+                {chatImages.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-3">
+                    {chatImages.map((image) => (
+                      <div
+                        key={image.url}
+                        className="aspect-square rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
+                      >
+                        <img
+                          src={image.url}
+                          alt="Shared media"
+                          onClick={() => setShowSelectedSendImage(image.url)}
+                          className="w-full h-full object-cover cursor-pointer"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No shared media yet.</p>
+                )}
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
       </div>
     </div>
