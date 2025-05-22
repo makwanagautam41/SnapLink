@@ -22,7 +22,7 @@ const getThemeStyle = (theme) => ({
 
   messageBubble: (isSender) =>
     isSender
-      ? "bg-[#000000] text-[#FAFAFA] rounded-2xl rounded-br-sm border border-[#ffffff]"
+      ? "bg-[#000000] text-[#FAFAFA] rounded-2xl rounded-br-sm border border-[#404040] rounded-2xl"
       : theme === "dark"
       ? "bg-[#171717] text-[#FAFAFA] border border-[#404040] rounded-2xl rounded-bl-sm"
       : "bg-[#FFFFFF] text-[#0A0A0A] border border-[#E5E5E5] rounded-2xl rounded-bl-sm",
