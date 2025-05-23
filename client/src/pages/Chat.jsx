@@ -28,7 +28,7 @@ const Chat = () => {
   const [showSelectedSendImage, setShowSelectedSendImage] = useState("");
   const [selectedImages, setSelectedImages] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
 
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
