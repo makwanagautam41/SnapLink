@@ -178,7 +178,7 @@ const Home = () => {
     const isNewUser = localStorage.getItem("isNewUser");
     if (isNewUser === "true") {
       setShowSetupPopup(true);
-      // localStorage.removeItem("isNewUser");
+      localStorage.removeItem("isNewUser");
     }
   }, []);
 
