@@ -198,7 +198,11 @@ const Sidebar = () => {
             scrollingUp ? "-translate-y-full" : "translate-y-0"
           } ${styles.bg}`}
         >
-          <div className="text-2xl" style={{ fontFamily: "Lobster" }}>
+          <div
+            onClick={() => navigate("/")}
+            className="text-2xl cursor-pointer"
+            style={{ fontFamily: "Lobster" }}
+          >
             SnapLink
           </div>
           <div className="flex gap-4">
