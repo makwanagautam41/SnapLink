@@ -31,9 +31,25 @@ const signup = async (req, res) => {
     }
 
     const userExist = await userModel
-      .findOne({ $or: [{ email }, { username }] })
+      .findOne({ $or: [{ email }, { username }, { phone }] })
       .lean();
+
     if (userExist) {
+      if (userExist.email === email) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Email already in use" });
+      }
+      if (userExist.username === username) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Username already in use" });
+      }
+      if (userExist.phone === phone) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Phone number already in use" });
+      }
       return res
         .status(409)
         .json({ success: false, message: "User already exists" });

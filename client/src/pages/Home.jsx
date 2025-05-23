@@ -98,13 +98,12 @@ const Home = () => {
       setError("Please select a date of birth.");
       return;
     }
-
+    setLoading({ status: true, method: "dateOfBirthUpdating" });
     const isValidDate = !isNaN(new Date(selectedDOB).getTime());
     if (!isValidDate) {
       setError("Invalid date format.");
       return;
     }
-    setLoading({ status: true, method: "dateOfBithUpdating" });
     const response = await changeDateOfBirth(selectedDOB);
     if (response?.success) {
       setLoading({ status: false, method: "" });
@@ -179,7 +178,7 @@ const Home = () => {
     const isNewUser = localStorage.getItem("isNewUser");
     if (isNewUser === "true") {
       setShowSetupPopup(true);
-      localStorage.removeItem("isNewUser");
+      // localStorage.removeItem("isNewUser");
     }
   }, []);
 
@@ -211,8 +210,8 @@ const Home = () => {
                       {/* Profile Image Section */}
                       <div
                         className={`rounded-xl p-4 transition-all hover:shadow-md ${
-                          styles.bg3
-                        } ${theme == "dark" ? "border border-gray-50" : ""}`}
+                          styles.bg2
+                        } ${theme == "dark" ? "border border-[#404040]" : ""}`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -275,8 +274,8 @@ const Home = () => {
                       {/* Date of Birth Section */}
                       <div
                         className={`rounded-xl p-4 transition-all hover:shadow-md ${
-                          styles.bg3
-                        } ${theme == "dark" ? "border border-gray-50" : ""}`}
+                          styles.bg2
+                        } ${theme == "dark" ? "border border-[#404040]" : ""}`}
                       >
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
@@ -337,8 +336,8 @@ const Home = () => {
                       {/* Bio Section */}
                       <div
                         className={`rounded-xl p-4 transition-all hover:shadow-md ${
-                          styles.bg3
-                        } ${theme == "dark" ? "border border-gray-50" : ""}`}
+                          styles.bg2
+                        } ${theme == "dark" ? "border border-[#404040]" : ""}`}
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex-1">
@@ -375,13 +374,15 @@ const Home = () => {
                               value={bio}
                               onChange={(e) => setBio(e.target.value)}
                               placeholder="Write your bio here..."
-                              className={`text-sm outline-none border border-gray-200 p-3 rounded-lg w-full resize-none focus:ring-2 focus:ring-blue-500 ${
-                                theme === "light" ? "bg-white" : ""
+                              className={`text-sm outline-none border p-3 rounded-lg w-full resize-none focus:outline-none${
+                                theme === "light"
+                                  ? "bg-white border-gray-400"
+                                  : "border-[#DADADA]"
                               }`}
                               rows={4}
                             />
                             <p className="text-xs text-gray-500 mt-1 text-right">
-                              {bio.length}/160 characters
+                              {bio.length}/60 characters
                             </p>
                           </div>
                         </div>
@@ -412,9 +413,13 @@ const Home = () => {
                   >
                     <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-64px)]">
                       {/* profile visibility */}
-                      <div className="rounded-xl p-4 transition-all hover:shadow-md">
+                      <div className="">
                         <div
-                          className="flex items-center justify-between rounded-2xl border border-gray-300 p-4 sm:p-6 shadow-sm cursor-pointer"
+                          className={`flex items-center justify-between rounded-2xl border p-4 sm:p-6 shadow-sm cursor-pointer ${
+                            theme === "dark"
+                              ? "border-[#404040]"
+                              : "border-gray-300"
+                          }`}
                           onClick={handleToggle}
                         >
                           <p className="text-base sm:text-lg font-medium">
@@ -466,16 +471,20 @@ const Home = () => {
                       </div>
 
                       {/* apperance visibility */}
-                      <div className="rounded-xl p-4 transition-all hover:shadow-md">
+                      <div className="">
                         <div
-                          className="flex items-center justify-between rounded-2xl border border-gray-300 p-4 sm:p-6 shadow-sm cursor-pointer"
+                          className={`flex items-center justify-between rounded-2xl border p-4 sm:p-6 shadow-sm cursor-pointer ${
+                            theme === "dark"
+                              ? "border-[#404040]"
+                              : "border-gray-300"
+                          }`}
                           onClick={toggleTheme}
                         >
                           <p className="text-base sm:text-lg font-medium">
                             Switch To {theme === "light" ? "Dark" : "Light"}
                           </p>
                           <Icon.toggleOn
-                            size={35}
+                            size={30}
                             className={theme === "light" ? "rotate-180" : ""}
                           />
                         </div>

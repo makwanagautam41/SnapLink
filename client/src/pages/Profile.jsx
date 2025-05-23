@@ -11,6 +11,7 @@ import UserProfileDetails from "../components/UserProfileDetails";
 import Avtar from "../components/Avtar";
 import ImageEditorModal from "../components/ImageEditorModal";
 import { useTheme } from "../context/ThemeContext";
+import PostSkeletonLoader from "../components/SkeletonLoaders/PostSkeletonLoader.jsx";
 
 const Profile = () => {
   const location = useLocation();
@@ -245,7 +246,7 @@ const Profile = () => {
       <div className="grid grid-cols-3 gap-1 mb-12">
         {loadingPosts ? (
           <div className="col-span-full text-center text-gray-500">
-            Loading posts...
+            <PostSkeletonLoader />
           </div>
         ) : filteredPosts.length === 0 ? (
           <div className="col-span-full text-center text-gray-500">

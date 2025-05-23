@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import { useTheme } from "../context/ThemeContext";
 import useThemeStyles from "../utils/themeStyles.js";
 
 const SidebarNotifications = ({ notification, followRequest }) => {
@@ -14,7 +13,6 @@ const SidebarNotifications = ({ notification, followRequest }) => {
     setFollowRequests,
     getRelativeTime,
   } = useAuth();
-  const { theme } = useTheme();
   const styles = useThemeStyles();
 
   const handleAcceptFollowRequest = async () => {
@@ -44,6 +42,7 @@ const SidebarNotifications = ({ notification, followRequest }) => {
       toast.error(`Error: ${res.message}`);
     }
   };
+
 
   return (
     <div className="md:mt-0 shadow-lg rounded-md hover:shadow-xl transition-shadow duration-300">
@@ -90,14 +89,14 @@ const SidebarNotifications = ({ notification, followRequest }) => {
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-700 truncate">
               <Link to={`/profile/${followRequest.username}`}>
-                {followRequest.username}
+                {followRequest.name}
               </Link>
             </h2>
             <span className="block text-xs text-gray-500 dark:text-gray-500 truncate">
               requested to follow you.
             </span>
             <span className="block text-xs text-gray-500 dark:text-gray-500">
-              15min
+              {getRelativeTime(followRequest.createdAt)}
             </span>
           </div>
           <div className="flex items-center gap-2">

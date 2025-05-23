@@ -9,9 +9,11 @@ export const StoryProvider = ({ children }) => {
   const { token } = useAuth();
   const [stories, setStories] = useState([]);
   const [myStories, setMyStories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchOtherUsersStories = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${BASE_URL}/story/fetch-stories`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -20,6 +22,7 @@ export const StoryProvider = ({ children }) => {
       if (response.data.success) {
         setStories(response.data.stories);
       }
+      setLoading(false);
     } catch (error) {
       console.error("Failed to fetch posts:", error.message);
     }
@@ -121,6 +124,8 @@ export const StoryProvider = ({ children }) => {
         deleteStory,
         uploadStory,
         addToViewStory,
+        loading,
+        setLoading,
       }}
     >
       {children}

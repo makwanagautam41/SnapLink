@@ -2,10 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import Story from "./Story";
 import Modal from "../Modal";
 import { useStory } from "../../context/StoryContext";
+import StorySkeletonLoader from "..//../components/SkeletonLoaders/StorySkeletonLoader";
 
 const StoryContainer = React.forwardRef((props, ref) => {
-  const { stories, fetchOtherUsersStories, myStories, fetchMyStories } =
-    useStory();
+  const {
+    stories,
+    fetchOtherUsersStories,
+    myStories,
+    fetchMyStories,
+    loading,
+  } = useStory();
   const [activeUserIndex, setActiveUserIndex] = useState(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const timerRef = useRef(null);
@@ -76,15 +82,19 @@ const StoryContainer = React.forwardRef((props, ref) => {
         ref={ref}
         className="flex space-x-4 overflow-x-auto px-2 py-4 scrollbar-hide"
       >
-        {myStories.length > 0 && (
-          <Story
-            key="my-story"
-            username={myStories[0]?.user?.username}
-            profileImg={myStories[0]?.user?.profileImg}
-            onClick={() => openStoryModal(0)}
-            stories={myStories[0]?.stories}
-            isMyStory={true}
-          />
+        {loading ? (
+          <StorySkeletonLoader />
+        ) : (
+          myStories.length > 0 && (
+            <Story
+              key="my-story"
+              username={myStories[0]?.user?.username}
+              profileImg={myStories[0]?.user?.profileImg}
+              onClick={() => openStoryModal(0)}
+              stories={myStories[0]?.stories}
+              isMyStory={true}
+            />
+          )
         )}
         {stories.map((storyGroup, index) => (
           <Story

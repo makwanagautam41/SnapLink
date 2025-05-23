@@ -11,7 +11,7 @@ import UserProfileDetails from "../components/UserProfileDetails.jsx";
 import PostTopBar from "../components/PostTopBar.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 import useThemeStyles from "../utils/themeStyles.js";
-import Modal from "../components/Modal.jsx";
+import PostSkeletonLoader from "../components/SkeletonLoaders/PostSkeletonLoader.jsx";
 
 const SearchedUserProfile = () => {
   const { username } = useParams();
@@ -330,9 +330,7 @@ const SearchedUserProfile = () => {
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-3 gap-1 mt-6 mb-12">
           {loadingPosts ? (
-            <div className="col-span-full text-center text-gray-500">
-              Loading posts...
-            </div>
+            <PostSkeletonLoader />
           ) : userPosts.length === 0 ? (
             <p className="col-span-full text-center text-gray-500">
               No posts found.

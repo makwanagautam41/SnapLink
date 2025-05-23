@@ -125,6 +125,7 @@ export const PostProvider = ({ children }) => {
 
   const fetchMyFeed = async () => {
     try {
+      setLoadingPosts(true);
       const response = await axios.get(`${BASE_URL}/posts/feed`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -133,6 +134,8 @@ export const PostProvider = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoadingPosts(false);
     }
   };
 
