@@ -28,7 +28,7 @@ const Chat = () => {
   const [showSelectedSendImage, setShowSelectedSendImage] = useState("");
   const [selectedImages, setSelectedImages] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(true);
 
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -301,7 +301,7 @@ const Chat = () => {
                   damping: 20,
                   duration: 0.3,
                 }}
-                className="flex justify-start"
+                className="flex justify-start mb-4"
               >
                 <div
                   className={`max-w-[75%] px-4 py-2 text-sm shadow ${styles.messageBubble(
