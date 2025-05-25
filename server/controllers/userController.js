@@ -4,30 +4,30 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import transporter from "../config/nodemailer.js";
+import { errorResponse, successResponse } from "../utils/responses.js";
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-const signup = async (req, res) => {
+export const signup = async (req, res) => {
   try {
     const { name, username, email, password, phone, gender } = req.body || {};
 
     if (!name || !username || !email || !password || !phone || !gender) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields required." });
+      return errorResponse(res, 400, "All fields required.");
     }
 
     if (!validator.isEmail(email)) {
-      return res.status(400).json({ success: false, message: "Invalid email" });
+      return errorResponse(res, 400, "Invalid email");
     }
 
     if (!validator.isStrongPassword(password)) {
-      return res.status(400).json({
-        success: false,
-        message: "Weak password. Use uppercase, lowercase, number & symbol",
-      });
+      return errorResponse(
+        res,
+        400,
+        "Weak password. Use uppercase, lowercase, number & symbol"
+      );
     }
 
     const userExist = await userModel
@@ -36,23 +36,15 @@ const signup = async (req, res) => {
 
     if (userExist) {
       if (userExist.email === email) {
-        return res
-          .status(409)
-          .json({ success: false, message: "Email already in use" });
+        return errorResponse(res, 409, "Email already in use");
       }
       if (userExist.username === username) {
-        return res
-          .status(409)
-          .json({ success: false, message: "Username already in use" });
+        return errorResponse(res, 409, "Username already in use");
       }
       if (userExist.phone === phone) {
-        return res
-          .status(409)
-          .json({ success: false, message: "Phone number already in use" });
+        return errorResponse(res, 409, "Phone number already in use");
       }
-      return res
-        .status(409)
-        .json({ success: false, message: "User already exists" });
+      return errorResponse(res, 409, "User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -71,22 +63,18 @@ const signup = async (req, res) => {
     });
 
     const token = createToken(user._id);
-    res.status(201).json({ success: true, token });
+    return successResponse(res, 201, { token }, "Signup successful");
   } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    return errorResponse(res, 500, err.message || "Internal server error");
   }
 };
 
-const signin = async (req, res) => {
+export const signin = async (req, res) => {
   try {
     const { identifier, password } = req.body || {};
 
-    if (!password || !identifier) {
-      return res.status(400).json({
-        success: false,
-        message: "Email/username and password required",
-      });
+    if (!identifier || !password) {
+      return errorResponse(res, 400, "Email/username and password required");
     }
 
     const user = await userModel
@@ -94,55 +82,57 @@ const signin = async (req, res) => {
         $or: [{ email: identifier }, { username: identifier }],
       })
       .lean();
-    if (!user)
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
 
-    if (user.deactivationInfo.isDeactivated) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "Your account is deactivated. Please reactivate your account before logging in.",
-      });
+    if (!user) {
+      return errorResponse(res, 404, "User not found");
+    }
+
+    if (user.deactivationInfo?.isDeactivated) {
+      return errorResponse(
+        res,
+        403,
+        "Your account is deactivated. Please reactivate your account before logging in."
+      );
     }
 
     if (user.deletionSchedule?.isScheduled) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "Your account is scheduled for deletion. Please cancel the deletion if you wish to continue using it.",
-      });
+      return errorResponse(
+        res,
+        403,
+        "Your account is scheduled for deletion. Please cancel the deletion if you wish to continue using it."
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res
-        .status(401)
-        .json({ success: false, message: "Incorrect password" });
+    if (!isMatch) {
+      return errorResponse(res, 401, "Incorrect password");
+    }
 
     const token = createToken(user._id);
 
-    res.json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        profileImg: user.profileImg,
-        bio: user.bio,
+    return successResponse(
+      res,
+      200,
+      {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          profileImg: user.profileImg,
+          bio: user.bio,
+        },
       },
-    });
+      "Login successful"
+    );
   } catch (err) {
     console.error("Signin error:", err);
-    res.status(500).json({ success: false, message: "Login error" });
+    return errorResponse(res, 500, "Login error");
   }
 };
 
-const loginAdmin = async (req, res) => {
+export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (
@@ -174,22 +164,16 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-const sendVerifyUserOtp = async (req, res) => {
+export const sendVerifyUserOtp = async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required",
-      });
+      return errorResponse(res, 400, "User ID is required");
     }
 
     const user = await userModel.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User does not exist!",
-      });
+      return errorResponse(res, 400, "User does not exist!");
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -218,45 +202,39 @@ const sendVerifyUserOtp = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({
-      success: true,
-      message: "Verification OTP has been sent to your email address",
-    });
+    return successResponse(
+      res,
+      200,
+      {},
+      "Verification OTP has been sent to your email address"
+    );
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Something went wrong, please try again later!",
-    });
+    return errorResponse(
+      res,
+      500,
+      "Something went wrong, please try again later!"
+    );
   }
 };
 
-const verifyUser = async (req, res) => {
+export const verifyUser = async (req, res) => {
   const userId = req.userId;
   const { otp } = req.body;
 
   if (!otp || !userId) {
-    return res.status(400).json({
-      success: false,
-      message: "User ID and OTP are required!",
-    });
+    return errorResponse(res, 400, "User ID and OTP are required!");
   }
 
   try {
     const user = await userModel.findById(userId);
 
     if (!user || user.otp !== otp) {
-      return res.json({
-        success: false,
-        message: "Invalid OTP.",
-      });
+      return errorResponse(res, 400, "Invalid OTP.");
     }
 
     if (user.otpExpiresAt < Date.now()) {
-      return res.json({
-        success: false,
-        message: "OTP has expired.",
-      });
+      return errorResponse(res, 400, "OTP has expired.");
     }
 
     user.otp = "";
@@ -264,26 +242,22 @@ const verifyUser = async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Email Verified Successfully",
-    });
+    return successResponse(res, 200, {}, "Email Verified Successfully");
   } catch (error) {
     console.error("Error verifying user:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Something went wrong, please try again later!",
-    });
+    return errorResponse(
+      res,
+      500,
+      "Something went wrong, please try again later!"
+    );
   }
 };
 
-const profile = async (req, res) => {
+export const profile = async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User ID is required" });
+      return errorResponse(res, 400, "User ID is required");
     }
 
     const [user, postCount] = await Promise.all([
@@ -309,30 +283,28 @@ const profile = async (req, res) => {
     ]);
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return errorResponse(res, 404, "User not found");
     }
 
-    return res.json({ success: true, user: { ...user, postCount } });
+    return successResponse(
+      res,
+      200,
+      { user: { ...user, postCount } },
+      "Profile fetched successfully"
+    );
   } catch (err) {
     console.error("Profile fetch error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return errorResponse(res, 500, "Internal server error");
   }
 };
 
-const getUserProfile = async (req, res) => {
+export const getUserProfile = async (req, res) => {
   try {
     const searchQuery = req.params.username;
     const userId = req.userId;
 
     if (!searchQuery || !userId) {
-      return res.status(400).json({
-        success: false,
-        message: "Search query and User ID are required",
-      });
+      return errorResponse(res, 400, "Search query and User ID are required");
     }
 
     const [currentUser, users] = await Promise.all([
@@ -354,9 +326,7 @@ const getUserProfile = async (req, res) => {
     ]);
 
     if (!currentUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return errorResponse(res, 404, "User not found");
     }
 
     currentUser.recentSearches.push({ username: searchQuery });
@@ -365,10 +335,7 @@ const getUserProfile = async (req, res) => {
     await currentUser.save();
 
     if (!users.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No users found matching the search",
-      });
+      return errorResponse(res, 404, "No users found matching the search");
     }
 
     // Get post counts in parallel
@@ -387,16 +354,19 @@ const getUserProfile = async (req, res) => {
       postCount: postCountMap[user._id] || 0,
     }));
 
-    return res.json({ success: true, users: usersWithPostCounts });
+    return successResponse(
+      res,
+      200,
+      { users: usersWithPostCounts },
+      "Users fetched successfully"
+    );
   } catch (err) {
     console.error("Profile fetch error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return errorResponse(res, 500, "Internal server error");
   }
 };
 
-const getPastSearchedUser = async (req, res) => {
+export const getPastSearchedUser = async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) {
@@ -446,7 +416,7 @@ const getPastSearchedUser = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {
+export const update = async (req, res) => {
   try {
     const userId = req.userId;
     const { bio, gender } = req.body;
@@ -495,7 +465,7 @@ const update = async (req, res) => {
   }
 };
 
-const updateEmail = async (req, res) => {
+export const updateEmail = async (req, res) => {
   try {
     const userId = req.userId;
     const { email } = req.body;
@@ -543,7 +513,7 @@ const updateEmail = async (req, res) => {
   }
 };
 
-const updatePhone = async (req, res) => {
+export const updatePhone = async (req, res) => {
   try {
     const userId = req.userId;
     const { phone } = req.body;
@@ -593,7 +563,7 @@ const updatePhone = async (req, res) => {
   }
 };
 
-const changeUsername = async (req, res) => {
+export const changeUsername = async (req, res) => {
   try {
     const userId = req.userId;
     const { newUsername } = req.body;
@@ -647,7 +617,7 @@ const changeUsername = async (req, res) => {
   }
 };
 
-const changeDateOfBirth = async (req, res) => {
+export const changeDateOfBirth = async (req, res) => {
   try {
     const userId = req.userId;
     const { newDateOfBirth } = req.body;
@@ -701,7 +671,7 @@ const changeDateOfBirth = async (req, res) => {
   }
 };
 
-const updateProfileImg = async (req, res) => {
+export const updateProfileImg = async (req, res) => {
   const userId = req.userId;
   const imageUrl = req.file?.path;
 
@@ -740,7 +710,7 @@ const updateProfileImg = async (req, res) => {
   }
 };
 
-const removeProfileImg = async (req, res) => {
+export const removeProfileImg = async (req, res) => {
   const DEFAULT_IMG_URL =
     "https://res.cloudinary.com/djbqtwzyf/image/upload/v1744042607/default_img_gszetk.png";
   try {
@@ -782,7 +752,7 @@ const removeProfileImg = async (req, res) => {
   }
 };
 
-const updatePassword = async (req, res) => {
+export const updatePassword = async (req, res) => {
   try {
     const userId = req.userId;
 
@@ -863,7 +833,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const sendPasswordResetOtp = async (req, res) => {
+export const sendPasswordResetOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -922,7 +892,7 @@ const sendPasswordResetOtp = async (req, res) => {
   }
 };
 
-const verifyPasswordResetOtp = async (req, res) => {
+export const verifyPasswordResetOtp = async (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -962,7 +932,7 @@ const verifyPasswordResetOtp = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   if (!email || !otp || !newPassword) {
@@ -1034,7 +1004,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const followUser = async (req, res) => {
+export const followUser = async (req, res) => {
   try {
     const { targetUsername } = req.params;
     const userId = req.userId;
@@ -1125,7 +1095,7 @@ const followUser = async (req, res) => {
   }
 };
 
-const unfollowUser = async (req, res) => {
+export const unfollowUser = async (req, res) => {
   try {
     const { targetUsername } = req.params;
     const userId = req.userId;
@@ -1204,7 +1174,7 @@ const unfollowUser = async (req, res) => {
   }
 };
 
-const acceptFollowRequest = async (req, res) => {
+export const acceptFollowRequest = async (req, res) => {
   try {
     const { targetUsername } = req.params;
     const userId = req.userId;
@@ -1278,7 +1248,7 @@ const acceptFollowRequest = async (req, res) => {
   }
 };
 
-const rejectFollowRequest = async (req, res) => {
+export const rejectFollowRequest = async (req, res) => {
   try {
     const { targetUsername } = req.params;
     const userId = req.userId;
@@ -1326,7 +1296,7 @@ const rejectFollowRequest = async (req, res) => {
   }
 };
 
-const updateProfileVisibility = async (req, res) => {
+export const updateProfileVisibility = async (req, res) => {
   try {
     const userId = req.userId;
 
@@ -1373,7 +1343,7 @@ const updateProfileVisibility = async (req, res) => {
   }
 };
 
-const deactivateAccount = async (req, res) => {
+export const deactivateAccount = async (req, res) => {
   try {
     const userId = req.userId;
     const { message } = req.body;
@@ -1411,7 +1381,7 @@ const deactivateAccount = async (req, res) => {
   }
 };
 
-const sendReactivateAccountOtp = async (req, res) => {
+export const sendReactivateAccountOtp = async (req, res) => {
   try {
     const { email, username, password } = req.body;
     if (!email && !username) {
@@ -1484,7 +1454,7 @@ const sendReactivateAccountOtp = async (req, res) => {
   }
 };
 
-const verifyOtpAndReactivateAccount = async (req, res) => {
+export const verifyOtpAndReactivateAccount = async (req, res) => {
   try {
     const { email, otp } = req.body;
     if (!email || !otp) {
@@ -1532,7 +1502,7 @@ const verifyOtpAndReactivateAccount = async (req, res) => {
   }
 };
 
-const deleteAccount = async (req, res) => {
+export const deleteAccount = async (req, res) => {
   try {
     const userId = req.userId;
 
@@ -1579,7 +1549,7 @@ const deleteAccount = async (req, res) => {
   }
 };
 
-const cancelAccountDeletion = async (req, res) => {
+export const cancelAccountDeletion = async (req, res) => {
   try {
     const { username, email, password, confirmCancel } = req.body;
 
@@ -1627,7 +1597,7 @@ const cancelAccountDeletion = async (req, res) => {
   }
 };
 
-const getNotifications = async (req, res) => {
+export const getNotifications = async (req, res) => {
   try {
     const userId = req.userId;
 
@@ -1662,7 +1632,7 @@ const getNotifications = async (req, res) => {
   }
 };
 
-const addCloseFriends = async (req, res) => {
+export const addCloseFriends = async (req, res) => {
   try {
     const userId = req.userId;
     const { targetUsername } = req.params;
@@ -1725,7 +1695,7 @@ const addCloseFriends = async (req, res) => {
   }
 };
 
-const blockUser = async (req, res) => {
+export const blockUser = async (req, res) => {
   try {
     const userId = req.userId;
     const { targetUsername } = req.params;
@@ -1773,39 +1743,4 @@ const blockUser = async (req, res) => {
     console.error("Block/Unblock User Error:", error);
     res.status(500).json({ message: "Server error" });
   }
-};
-
-export {
-  signup,
-  signin,
-  loginAdmin,
-  sendVerifyUserOtp,
-  verifyUser,
-  profile,
-  getUserProfile,
-  getPastSearchedUser,
-  update,
-  updateEmail,
-  updatePhone,
-  changeUsername,
-  changeDateOfBirth,
-  updateProfileImg,
-  removeProfileImg,
-  updatePassword,
-  sendPasswordResetOtp,
-  verifyPasswordResetOtp,
-  resetPassword,
-  followUser,
-  unfollowUser,
-  updateProfileVisibility,
-  acceptFollowRequest,
-  rejectFollowRequest,
-  deactivateAccount,
-  sendReactivateAccountOtp,
-  verifyOtpAndReactivateAccount,
-  deleteAccount,
-  cancelAccountDeletion,
-  getNotifications,
-  addCloseFriends,
-  blockUser,
 };
