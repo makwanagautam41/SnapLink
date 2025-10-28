@@ -45,6 +45,9 @@ const Chat = () => {
   } = useChat();
 
   useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
     if (users.length > 0 && username) {
       const foundUser = users.find((u) => u.username === username);
       if (foundUser) {
@@ -55,9 +58,6 @@ const Chat = () => {
   }, [username, users]);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
   }, [messages]);
 
   useEffect(() => {
