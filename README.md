@@ -1,4 +1,4 @@
-# 📸 Mini Instagram Clone — MERN Stack Project
+# 📸 Mini Instagram Like Social Media Plateform — MERN Stack Project
 
 A **feature-rich Instagram-style social media web app** built using the **MERN Stack (MongoDB, Express.js, React.js, Node.js)** with **automated background tasks** powered by **Node.js cron jobs**.  
 This project brings together the essential features of a modern social app — stories, posts, interactions, notifications, and automation — all wrapped in a clean, responsive UI.
